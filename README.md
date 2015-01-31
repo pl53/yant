@@ -1,7 +1,7 @@
 Yanote: A CLI notebook tool
 
 * Goal
-  The primary goal of Yanote is storing information or knowledge as key-value
+  - The primary goal of Yanote is storing information or knowledge as key-value
   pairs for later queries or review. 
 
 * Feature
@@ -14,7 +14,7 @@ Yanote: A CLI notebook tool
   - Python 3
 
 * Installation 
-  After downloading yanote.tar.gz
+  - After downloading yanote.tar.gz
   ```
   $ tar -xzf yanote.tar.gz
   $ cd yanote
