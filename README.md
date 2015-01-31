@@ -22,22 +22,22 @@ Yanote: A CLI notebook tool
 * Usage examples
 
   - create a notebook named "magic": 
-'''
+```
        $ yanote -c magic
-'''
+```
   - add my bestbuy reward number ("1234"): 
-'''
+```
        $ yanote magic -a "bestbuy reward" 
        Add a note for bestbuy reward: 1234
        One record added/updated.
-'''
+```
   - search my bestbuy reward number:
-'''
+```
        $ yanote magic -s bestbuy
        ==Match #1==
        Key: bestbuy reward
        #1: 1234
-'''
+```
   For complete usage, see "yanote -h"
  
 * Advanced features
