@@ -1,29 +1,27 @@
 Yanote: A CLI notebook tool
 
 * Goal
-
   The primary goal of Yanote is storing information or knowledge as key-value
   pairs for later queries or review. 
 
 * Feature
-
   - support multiple notebooks;
   - support add, delete, update, and search notes;
-  - support RANDOM review of notes in the same book;
+  - support *random* review of notes in the same book;
   - support building English vocabulary.
 
-* Installation 
+* Requirement
+  - Python 3
 
+* Installation 
   After downloading yanote.tar.gz
   ```
   $ tar -xzf yanote.tar.gz
   $ cd yanote
   $ sudo sh install.sh
   ```
-  *Require Python 3 to run*.
 
 * Usage examples
-
   - create a notebook named "magic": 
 ```
        $ yanote -c magic
@@ -44,10 +42,10 @@ Yanote: A CLI notebook tool
   For complete usage, see "yanote -h"
  
 * Advanced features
-
-  - Use "-w" to call "sdcv" and "forvo" to show the meaning and pronounce the
-    *key*, which is very useful for building vocabulary. "forvo" is a CLI client
-    for forvo.com. You can download it from github.com/pl53/forvo-linux-client
+  - When creating a notebook for new words, use "-w" indicate it is an word
+    book, so Yanote will call "sdcv" and "forvo" to show the meaning and pronounce the
+    word when showing it. "forvo" is a CLI client for forvo.com written by myself. 
+    You can download it from github.com/pl53/forvo-linux-client
 
   - By default, database files are stored in ~/.yanote. If you need to save them
     in another directory (e.g. Dropbox folder), you can set the YANOTE_PATH env.
