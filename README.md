@@ -56,4 +56,4 @@ For bugs and suggestions, please send emails to lipeng.net at gmail dot com.
 
 * TODO
   - support wildcard search
-  - add entryption option
+  - add encryption option
