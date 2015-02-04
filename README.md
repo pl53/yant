@@ -1,4 +1,4 @@
-Yanote: A CLI notebook tool
+Yanote: A CLI notebook tool (previously *Memo*)
 
 * Goal
   - The primary goal of Yanote is storing information or knowledge as key-value
