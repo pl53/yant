@@ -53,3 +53,7 @@ Yanote: A CLI notebook tool
     directory (e.g. Dropbox folder) by setting the YANOTE_PATH env.
 
 For bugs and suggestions, please send emails to lipeng.net at gmail dot com.
+
+* TODO
+  - support wildcard search
+  - add entryption option
