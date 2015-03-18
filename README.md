@@ -55,5 +55,7 @@ Yanote: A CLI notebook tool (previously *Memo*)
 For bugs and suggestions, please send emails to lipeng.net at gmail dot com.
 
 * TODO
-  - support wildcard search
+  - improve search, supprot wildcard, key-based search
   - add encryption option
+  - add cmd execution to note (e.g. play sound, open a webpage)
+  - add pre-defined note (e.g. $sdcv $@)
