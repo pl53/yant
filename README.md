@@ -54,6 +54,9 @@ Yanote: A CLI notebook tool (previously *Memo*)
 
 For bugs and suggestions, please send emails to lipeng.net at gmail dot com.
 
+* Bugs
+  - ``fortune'' (-f) is broken
+  - 
 * TODO
   - improve search, supprot wildcard, key-based search
   - add encryption option
