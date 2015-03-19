@@ -57,7 +57,7 @@ For bugs and suggestions, please send emails to lipeng.net at gmail dot com.
 * Bugs
   - ``fortune'' (-f) is broken
   - "-include" is recognized as option -i
-  - 
+  
 * TODO
   - improve search, supprot wildcard, key-based search
   - add encryption option
