@@ -59,26 +59,12 @@ def parse_arguments(args):
                         help="fortune cookie with the notebook")
     return parser.parse_args(args)
 
-''' unfinished '''
 def get_booklist(note_path):
     # retrive current notebooks
     all_files = os.listdir(note_path)
-    # e.g. ".word.db" -> ["", "word", "db"]
-    split_names = [s.split(".") for s in all_files] 
-    current_books = [name[-2] for name in split_names \
-                   if len(name) > 1 and name[-1] == "db"]
+    db_files = [f for f in all_files if f.endswith(".db")]
+    current_books = [name[:-3] for name in db_files]
     return current_books
-
-'''unfinished'''
-def validate_metafile(note_path):
-    meta_file = os.path.join(note_path, meta_name)
-    all_files = os.listdir(note_path)
-    try:
-        book_files = all_files.remove(meta_file)
-    except:
-        pass # ignore if metafile not in it
-    split_names = [s.split(".") for s in book_files] 
-    
 
 if __name__ == "__main__":
 
