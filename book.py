@@ -1,6 +1,7 @@
 import entry
 import pickle
 import sys
+import re
 import subprocess
 import random
 from contextlib import contextmanager
@@ -37,6 +38,7 @@ class Notebook:
     def __init__(self, book_name, entry_type):
         self.filename = book_name.strip()
         self.entry_type = entry_type
+        self.book_name = self.filename.split("/")[-1][:-3]
 
     def create_book(self, desc):
         with open(self.filename, "wb") as fp:
@@ -80,14 +82,17 @@ class Notebook:
         print(self.desc)
 
     @load_book
-    def search_entries(self, keyword):
-        kwl = keyword.lower().strip()
+    def search_entries(self, pattern):
+        pattern = pattern.lower().strip()
         match_cnt = 0
+        print("Search book " + colored(self.book_name, "y") + " ..")
+        prog = re.compile(pattern)
         with open_book(self):
             for e in self.entries:
-                if kwl in self.entries[e].__str__():
+                result = prog.match(self.entries[e].__str__())
+                if result:
                     match_cnt += 1
-                    print("==Match #" + str(match_cnt)+"==")
+                    print("==Match #" + str(match_cnt) + "==")
                     print("Key:", end=' ')
                     self.entries[e].show_key()
                     self.entries[e].show_note()
@@ -163,7 +168,12 @@ class Notebook:
 
     @load_book
     def pick_random_entry(self):
-        return random.choice(self.entries)
+        key_list = list(self.entries.keys())
+        if key_list != []:
+            random_key = random.choice(key_list)
+            return self.entries[random_key]
+        else:
+            return None
 
     @load_book
     def random_entries(self):
