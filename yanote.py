@@ -1,11 +1,11 @@
 #!/usr/bin/python3
-
 import os
-import sys
-import argparse
 import re
+import sys
 import random
-import json
+import argparse
+import operator
+from itertools import accumulate
 import entry
 import book
 from colors import colors
@@ -33,8 +33,8 @@ def parse_arguments(args):
     parser = argparse.ArgumentParser(prog="python3 yanote.py")
     group1 = parser.add_mutually_exclusive_group()
     group2 = parser.add_mutually_exclusive_group()
-    parser.add_argument("-g", "--debug", action="store_true", default=False, \
-                        help="debug mode, print more information")
+    #parser.add_argument("-g", "--debug", action="store_true", default=False, \
+    #                    help="debug mode, print more information")
     group1.add_argument("-l", "--lst",\
                         action="store_true",\
                         default=False,\
@@ -43,25 +43,6 @@ def parse_arguments(args):
                         metavar="book_name")
     #parser.add_argument("-w", "--word", action="store_true", default=False,\
     #                    help="this is a word notebook")
-    group2.add_argument("-r", "--review",\
-                        action="store_true",\
-                        default=False,\
-                        help="review notebook to build knowledge")
-    group2.add_argument("-i", "--import_book",\
-                        metavar="input_file",\
-                        nargs="?",\
-                        const='__MEMO_IMPORT__',\
-                        help="import the notebook from a textfile")
-    group2.add_argument("-o", "--export_book",\
-                        metavar="output_file",\
-                        nargs="?",\
-                        const='__MEMO_EXPORT__',\
-                        help="export the notebook to a textfile")
-    group2.add_argument("-e", "--desc",\
-                        metavar="description",\
-                        nargs='?',\
-                        const='__MEMO_DESC__',\
-                        help="update notebook description")
     group2.add_argument("-c",\
                         "--create",\
                         action="store_true",\
@@ -85,11 +66,30 @@ def parse_arguments(args):
                         help="update notes for an entry")
     group2.add_argument("-s", "--search",\
                         metavar="keyword", \
-                        help="search note with the given keyword, currently only one keyword supported")
+                        help="search notes with the given pattern, regular expression is supported")
+    group2.add_argument("-r", "--review",\
+                        action="store_true",\
+                        default=False,\
+                        help="review notebook to build knowledge")
+    group2.add_argument("-i", "--import_book",\
+                        metavar="input_file",\
+                        nargs="?",\
+                        const='__MEMO_IMPORT__',\
+                        help="import the notebook from a textfile")
+    group2.add_argument("-o", "--export_book",\
+                        metavar="output_file",\
+                        nargs="?",\
+                        const='__MEMO_EXPORT__',\
+                        help="export the notebook to a textfile")
+    group2.add_argument("-e", "--desc",\
+                        metavar="description",\
+                        nargs='?',\
+                        const='__MEMO_DESC__',\
+                        help="update notebook description")
     group2.add_argument("-f", "--fortune",
                         action="store_true",\
                         default=False, \
-                        help="fortune cookie with the notebook")
+                        help="I feel lucky :-)")
     return parser.parse_args(args)
 
 def get_booklist(note_path):
@@ -104,8 +104,6 @@ if __name__ == "__main__":
     check_python_version()
     note_path = get_data_path()
     args = parse_arguments(sys.argv[1:])
-    if args.debug:
-        print(args)
  
     #meta_file = os.path.join(note_path, args.book+".mt")
     #book_type = ""
@@ -120,6 +118,7 @@ if __name__ == "__main__":
         sys.exit(0)
     else:
         book_pattern = args.book.strip() # support regular expression
+        matched_books = [b for b in all_books if re.match(book_pattern, b)]
 
     #if args.word:
     #    entry_type = entry.wordEntry
@@ -142,10 +141,9 @@ if __name__ == "__main__":
             print("Please use -c or --create to create one first.")
             sys.exit(1)
         else:
-            book_file = os.path.join(note_path, args.book_pattern+".db")
+            book_file = os.path.join(note_path, book_pattern+".db")
             book_obj = book.Notebook(book_file, entry_type)
     else: # use regular expression to match multiple books
-        matched_books = [b for b in all_books if re.match(book_pattern, b)]
         book_file_list = [os.path.join(note_path, b+".db") for b in matched_books]
         book_obj_list = [book.Notebook(b, entry_type) for b in book_file_list]
 
@@ -187,23 +185,64 @@ if __name__ == "__main__":
 
 
     if args.search:
-        for bo in book_obj_list:
-            bo.search_entries(args.search)
-
-
-    if args.fortune:
-        raw_entries = [bo.pick_random_entry() for bo in book_obj_list]
-        entries = [(matched_books[i], raw_entries[i]) \
-                   for i in range(len(raw_entries)) if raw_entries[i] != None]
-        if entries != []:
-            book_name, entry = random.choice(entries)
-            print("BOOK:", colored(book_name, "y"))
-            entry.show_key()
-            entry.show_note()
-        else:
-            print("None entry in selected books.")
+        matched_entry_cnt, matched_book_cnt = 0, 0
+        for i,bo in enumerate(book_obj_list):
+            matches = bo.search_entries(args.search)
+            if matches:
+                matched_book_cnt += 1
+                for k,entry in enumerate(matches):
+                    matched_entry_cnt += 1
+                    print("==Match #" + str(matched_entry_cnt) + "==")
+                    print("BOOK:", colored(matched_books[i], "y"), end=", ")
+                    print("Key:", end=' ')
+                    entry.show_key()
+                    entry.show_note()
+        print("{0} matched record(s) found in {1} book(s).".format(\
+              colored(str(matched_entry_cnt), "r"), \
+              colored(str(matched_book_cnt), "r")))
 
     if args.review:
-        for bo in book_obj_list:
-            bo.random_review()
-    #book.close()
+        review_seq = []
+        note_cnt = [bo.get_entry_count() for bo in book_obj_list]
+        for i in range(len(matched_books)):
+            new_reviews = [(matched_books[i], book_obj_list[i], k) \
+                           for k in range(note_cnt[i])]
+            review_seq += new_reviews
+        random.shuffle(review_seq)
+        for i, r in enumerate(review_seq):
+            print("BOOK:", colored(r[0], "y"))
+            rval = r[1].random_review([r[2]])
+            if rval != 0:
+                break
+     
+        print(colored(("\nYou have finished reviewing {} of {} records,"+\
+              " keep going!").format(i+1, len(review_seq)), 'b'))
+        #for bo in book_obj_list:
+        #    bo.random_review()
+
+    if args.fortune:
+        note_cnt = [bo.get_entry_count() for bo in book_obj_list]
+        accumulated_cnt = list(accumulate(note_cnt, operator.add))
+        if accumulated_cnt[-1] == 0:
+            print("None entry in selected books.")
+            sys.exit(0)
+        cdf = [cnt*1.0/accumulated_cnt[-1] for cnt in accumulated_cnt]
+        r = random.random()
+        for i in range(len(cdf)):
+            if r <= cdf[i]: 
+                break
+        random_entry = book_obj_list[i].pick_random_entry()
+        print("BOOK:", colored(matched_books[i], "y"))
+        random_entry.show_key()
+        random_entry.show_note()
+           
+#        raw_entries = [bo.pick_random_entry() for bo in book_obj_list]
+#        entries = [(matched_books[i], raw_entries[i]) \
+#                   for i in range(len(raw_entries)) if raw_entries[i] != None]
+#        if entries != []:
+#            book_name, entry = random.choice(entries)
+#            print("BOOK:", colored(book_name, "y"))
+#            entry.show_key()
+#            entry.show_note()
+#        else:
+#            print("None entry in selected books.")

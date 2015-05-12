@@ -32,16 +32,6 @@ class Entry:
         except IndexError as e:
             print("Cannot remove a non-existent note.")
 
-    '''
-    def input_value(self):
-        while True:
-            a = input("Input a " + self.value_name.lower() +\
-                      " for {} (press {} to skip): ".\
-                       format(colored(self.key, "g"), colored("Enter", "c")))
-            if a == "":
-                break
-            self.value.append(a)
-    '''
     def input_note(self):
         note = input("Add a note for {} (press {} to finish): ".\
                    format(colored(self.key, "g"), colored("Enter", "c")))
@@ -56,38 +46,7 @@ class Entry:
             self.note.append(new_note)
 
     def update_notes(self):
-        if self.note == []:
-            print("No user note has been added for this key.")
-            return 1
-        self.show_user_note()
-        print("A valid update instruction is an operator (a/d/r, append/delete/replace) with an optional index.")
-        print("For example, 'a' -- append a note, 'd1' -- delete note #1, 'r2' -- update note #2.")
-        print("If note index is not specified for d/r, the last note will be the target.")
-        action = input("Input your update instruction: ")
-        try:
-            op = action[0].lower()
-            if op not in 'adr':
-                raise ValueError("unrecognized update operation")
-            if len(action) > 1:
-                idx = int(action[1:]) - 1
-                if idx < 0 or idx >= len(self.note):
-                    raise ValueError("note index out of range")
-            else:
-                idx = -1
-            if op == 'a' or op == 'r':
-                new_note = self.input_note()
-                if new_note == '':
-                    raise ValueError("no user note provided")
-                if op == 'a':
-                    self.note.append(new_note)
-                else:
-                    self.note[idx] = new_note
-            else:
-                del self.note[idx]
-        except (ValueError,IndexError) as e:
-            print("Invalid update operation:", e, end='.\n')
-            return 1
-        return 0
+        utils.update_list(self.note, self.input_note, "note")
 
     def update_n_append(self):
         self.update_notes()
@@ -111,8 +70,8 @@ class Entry:
      
     def format_note(self):
         formatted_notes = ["#"+ str(i+1) + ": " + self.note[i] \
-                          for i in range(len(self.note))]
-        return "\n".join(formatted_notes)
+                           for i in range(len(self.note))]
+        return formatted_notes
 
     def show_key(self):
         '''first step of a three-step process'''
@@ -124,9 +83,9 @@ class Entry:
         pass
 
     def show_user_note(self):
-        note = self.format_note()
-        utils.paged_print(note)
-        
+        utils.paged_print(self.format_note())
+        #for note in self.format_note():
+        #    print(note)
 
     def show_note(self):
         self.show_external_note()
@@ -147,7 +106,7 @@ class Entry:
         if 'A' in CMD:
             self.append_notes()
         if "Q" in CMD:
-            raise EntryExcept("Review ends. That's it.")
+            raise EntryExcept("review ends.")
     
     def __str__(self):
        s = '\n'.join([self.key] + self.note)
@@ -168,13 +127,12 @@ class wordEntry(Entry):
             PIPE = subprocess.PIPE
             process = subprocess.Popen(["sdcv", self.key], \
                                       stdin=PIPE, stdout=PIPE) 
-            
             sdcv_out_bytes, err = process.communicate()
             sdcv_out = str(sdcv_out_bytes, encoding='utf-8')
             if "Your choice[-1 to abort]:" not in sdcv_out and \
                "Nothing similar to " not in sdcv_out:
                 utils.paged_print(sdcv_out.replace(self.key, \
-                                  colored(self.key, "g")))                
+                                  colored(self.key, "g")).splitlines())                
         except Exception as e:
             print("sdcv not installed?")
         

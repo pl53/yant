@@ -55,13 +55,15 @@ Yanote: A CLI notebook tool (previously *Memo*)
 For bugs and suggestions, please send emails to lipeng.net at gmail dot com.
 
 * Bugs
-  - ``fortune'' (-f) is broken
-  - "-include" is recognized as option -i
   
 * TODO
-  - improve search, supprot wildcard, key-based search
-  - add encryption option
+  - improve search, supprot wildcard, key-based search (done, re)
+  - improve fortune, choose according to probability (done)
+  - enrich notebook information (name, desc, exec, notes (key-value pair))
+    #  -e to change any of them
   - add cmd execution to note (e.g. play sound, open a webpage)
-  - add pre-defined notes (e.g. $sdcv $@)
-  - reorder notes
-  - merge two keys
+  - add option to modifying notebook
+  - add unit test
+  - add encryption option (low priority)
+  - reorder note values (low priority)
+  - merge two keys (low priority)

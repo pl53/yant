@@ -23,7 +23,7 @@ def open_book(obj):
     #    sys.stderr.write("Something wrong happens, that's embarrassing...\n")
 
 # no write back
-def load_book(func):
+def read_book(func):
     def inner(obj, *args):
         with open(obj.filename, "rb") as fp:
             obj.desc, obj.entries = pickle.load(fp)
@@ -77,65 +77,61 @@ class Notebook:
                 print("Record deleted.")
             except KeyError as e:
                 print("Nonexistent keyword " + key + ", skip.")
-    @load_book
+    @read_book
     def description(self):
         print(self.desc)
 
-    @load_book
+    @read_book
+    def get_entry_count(self):
+        return len(self.entries)
+
+    @read_book
     def search_entries(self, pattern):
         pattern = pattern.lower().strip()
-        match_cnt = 0
-        print("Search book " + colored(self.book_name, "y") + " ..")
+        result = []
         prog = re.compile(pattern)
         with open_book(self):
             for e in self.entries:
-                result = prog.match(self.entries[e].__str__())
-                if result:
-                    match_cnt += 1
-                    print("==Match #" + str(match_cnt) + "==")
-                    print("Key:", end=' ')
-                    self.entries[e].show_key()
-                    self.entries[e].show_note()
-        if match_cnt == 0:
-            print("No matched record found.")
+                for w in self.entries[e].__str__().split():
+                    if prog.match(w.strip("\"\'")): # match found
+                        result.append(self.entries[e])
+                        break
+        return result
 
-    def random_review(self):
+    def random_review(self, random_indices=[]):
         review_cnt = 0 
         with open_book(self):
-            random_index = [i for i in range(len(self.entries))]
-            random.shuffle(random_index)
+            if random_indices == []: # review all entries
+                random_indices = list(range(len(self.entries)))
+                random.shuffle(random_indices)
             keys = list(self.entries.keys())
-            for ri in random_index:
-                e = self.entries[keys[ri]]
+            total_cnt = len(keys)
+            for ri in random_indices:
                 try:
+                    e = self.entries[keys[ri]]
                     review_cnt += 1
                     print("Remember this? ===========> ", end="")
                     e.show_key()
                     cmd = input("Press {} to reveal it => ".\
                                 format(colored("Enter", "c"))) # just to continue
                     e.show_note()
-                    #cmd = input(("Know({0}), Forget({1}), Delete({2}), " +\
-                    #        "Update({3}), Append({4}), or Quit({5})\n" +\
-                    #        "Enter ({0}{1}{2}|{3}|{4}|{5}) ==> ")\
-                    #        .format(colored('y', "y"), colored('n', "y"), \
-                    #        colored('d', 'y'), colored("u", "y"), \
-                    #        colored("a", 'y'), colored('q', 'y')))
-                    cmd = input(("Delete({0}), Update({1}), Append({2}), Quit({3}), or Next <{4}>\n" +\
-                            "Enter ({0}|{1}|{2}|{3}|<{4}>) ==> ")\
-                            .format(colored('d', 'y'), colored("u", "y"), \
-                            colored("a", 'y'), colored('q', 'y'), colored('Enter', 'y')))
-
+                    cmd = input("Delete({0}), Update({1}), Quit({2}), or Next(<{3}>)=> ".format( \
+                                colored('d', 'y'), colored("u", "y"), colored('q', 'y'), colored('Enter', 'y')))
                     e.exec_cmd(cmd)
-                except (KeyboardInterrupt, entry.EntryExcept) as e:
+                except (KeyboardInterrupt, entry.EntryExcept, IndexError) as e:
+                    print("Review interrupted by", e)
+                    rval = 1
                     break
-            total_cnt = len(keys)
-            for k in keys:
-                if self.entries[k].rmb_cnt >= 1000:
-                     del self.entries[k]
-            print(colored(("\nYou have finished reviewing {} of {} records,"+\
-                  " keep going!").format(review_cnt, total_cnt), 'b'))
+            else:
+                rval = 0
+            #for k in keys:
+            #    if self.entries[k].rmb_cnt >= 1000:
+            #         del self.entries[k]
+            #print(colored(("\nYou have finished reviewing {} of {} records,"+\
+            #      " keep going!").format(review_cnt, total_cnt), 'b'))
+        return rval   
  
-    @load_book
+    @read_book
     def export_book(self, raw_filename):
         dump_file = raw_filename.strip()
         print("Export the notebook to " + dump_file)
@@ -166,7 +162,7 @@ class Notebook:
                 except:
                      sys.stderr.write("Oops... error during importing process.\n")
 
-    @load_book
+    @read_book
     def pick_random_entry(self):
         key_list = list(self.entries.keys())
         if key_list != []:
@@ -175,12 +171,12 @@ class Notebook:
         else:
             return None
 
-    @load_book
-    def random_entries(self):
+    @read_book
+    def randomize_entries(self):
         random.shuffle(self.entries)
         return self.entries
 
-    @load_book
+    @read_book
     def __iter__(self):
             self.index = -1
             return self
