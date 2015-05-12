@@ -84,31 +84,30 @@ def update_list(lst, new_item_func, item_name="item"):
     print("For example, 'a' -- append an {0}, 'd1' -- delete {0} #1, 'r2' -- replace {0} #2.".format(item_name))
     print("If index is not specified for d/r, the last {0} will be the target.".format(item_name))
     action = input("Input your update instruction: ")
-    if action == "":
-        print("No update action performed. Skip.")
-        return 0
-    try:
-        op = action[0].lower()
-        if op not in 'adr':
-            raise ValueError("Unrecognized update operation")
-        if len(action) > 1:
-            idx = int(action[1:]) - 1
-            if idx < 0 or idx >= len(lst):
-                raise ValueError("Index out of range")
-        else:
-            idx = -1
-        if op == 'a' or op == 'r':
-            new_item = new_item_func()
-            if new_item == '':
-                raise ValueError("No {0} provided.".format(item_name))
-            if op == 'a':
-                lst.append(new_item)
+    while action != "":
+        try:
+            op = action[0].lower()
+            if op not in 'adr':
+                raise ValueError("Unrecognized update operation")
+            if len(action) > 1:
+                idx = int(action[1:]) - 1
+                if idx < 0 or idx >= len(lst):
+                    raise IndexError("Index out of range")
             else:
-                lst[idx] = new_item
-        else:
-            del lst[idx]
-        return 0
-    except (ValueError, IndexError) as e:
-        print("Invalid update operation:", e, end='.\n')
-        return 1
+                idx = -1
+            if op == 'a' or op == 'r':
+                new_item = new_item_func()
+                if new_item == '':
+                    raise ValueError("No {0} provided.".format(item_name))
+                if op == 'a':
+                    lst.append(new_item)
+                else:
+                    lst[idx] = new_item
+            else:
+                del lst[idx]
+        except (ValueError, IndexError) as e:
+            print("Invalid update operation:", e, end='.\n')
+            return 1
+        action = input("Input your update instruction: ")
+    return 0
 

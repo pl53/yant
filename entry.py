@@ -46,7 +46,7 @@ class Entry:
             self.note.append(new_note)
 
     def update_notes(self):
-        utils.update_list(self.note, self.input_note, "note")
+        return utils.update_list(self.note, self.input_note, "note")
 
     def update_n_append(self):
         self.update_notes()

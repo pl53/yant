@@ -10,17 +10,25 @@ colored = colors.colored
 
 @contextmanager
 def open_book(obj):
-    try:
-        with open(obj.filename, "rb") as fp:
+    try: 
+        with open(obj.filename, "rb") as fp: # "with" cannot handle excpetion here
             data = pickle.load(fp)
             obj.desc, obj.entries = data
-        yield
+    except (OSError, IOError) as e:
+        sys.stderr.write("Notebook not found.\n")
+        sys.exit(1)
+    except pickle.PickleError as e:
+        sys.stderr.write("Couldn't load notebook data. \
+                          Please make sure data in correct format.\n")
+        sys.exit(1)
+
+    yield
+
+    try: 
         with open(obj.filename, "wb") as fp:
             pickle.dump((obj.desc, obj.entries), fp) 
-    except IOError:
-        sys.stderr.write("Cannot open notebook, already in use?\n")
-    #except:
-    #    sys.stderr.write("Something wrong happens, that's embarrassing...\n")
+    except pickle.PicklingError as e:
+        sys.stderr.write("Unable to store data.\n")
 
 # no write back
 def read_book(func):
