@@ -103,16 +103,20 @@ def get_booklist(note_path):
 if __name__ == "__main__":
 
     check_python_version()
-    note_path = get_data_path()
     args = parse_arguments(sys.argv[1:])
  
     #meta_file = os.path.join(note_path, args.book+".mt")
     #book_type = ""
     #book_list = get_booklist(note_path)
     #validate_metafile(note_path, book_file)
-    all_books = get_booklist(note_path)
+    note_path = get_data_path()
+    all_books = get_booklist(note_path) # note_path guaranteed to be valid
     book_pattern = args.book.strip() # support regular expression
-    matched_books = [b for b in all_books if re.match(book_pattern, b)]
+    try:
+        matched_books = [b for b in all_books if re.match(book_pattern, b)]
+    except:
+        sys.stderr.write("Invalid regular expression " + book_pattern + "\n")
+        sys.exit(1)
     entry_type = entry.Entry
 
     if args.lst:
@@ -136,7 +140,7 @@ if __name__ == "__main__":
                 args.delete or args.import_book or args.export_book) and \
                 len(matched_books) > 1:
             sys.stderr.write("More than one book found: " + "\t".join(matched_books))
-            sys.stderr.write("The operation can be applied to only one book.")
+            sys.stderr.write("The operation can be applied to only one book.\n")
             sys.exit(1)
         else:
             book_file_list = [os.path.join(note_path, b+".db") for b in matched_books]
@@ -189,7 +193,7 @@ if __name__ == "__main__":
                     matched_entry_cnt += 1
                     print("==Match #" + str(matched_entry_cnt) + "==")
                     print("BOOK:", colored(matched_books[i], "y"), end=", ")
-                    print("Key:", end=' ')
+                    print("TITLE:", end=' ')
                     entry.show_key()
                     entry.show_note()
         print("{0} matched record(s) found in {1} book(s).".format(\
