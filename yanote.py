@@ -33,9 +33,10 @@ def parse_arguments(args):
     group2 = parser.add_mutually_exclusive_group()
     #parser.add_argument("-g", "--debug", action="store_true", default=False, \
     #                    help="debug mode, print more information")
-    group2.add_argument("-l", "--lst",\
-                        action="store_true",\
-                        default=False,\
+    group2.add_argument("-l", "--list", \
+                        action="store_true", \
+                        default=False, \
+                        dest="lst", \
                         help="list notebooks matching given pattern")
     #parser.add_argument("-w", "--word", action="store_true", default=False,\
     #                    help="this is a word notebook")
@@ -45,36 +46,38 @@ def parse_arguments(args):
                         default=False,\
                         help="create a notebook")
     group2.add_argument("-a", "--add",\
-                        metavar="new_key",\
+                        metavar="title",\
                         nargs='?',\
                         const='__MEMO_ADD__',\
-                        help="add one entry to the notebook")
+                        help="add one note entry to the notebook")
     group2.add_argument("-d", "--delete",\
-                        metavar="old_key",\
+                        metavar="title",\
                         nargs='?',\
                         const='__MEMO_DELETE__',\
-                        help="delete one entry from the notebook")
+                        help="delete the note entry with given title")
     group2.add_argument("-u", "--update",\
-                        metavar="old_key",\
+                        metavar="title",\
                         nargs='?',\
                         const='__MEMO_UPDATE__', \
-                        help="update notes for an entry")
+                        help="update the note entry with given title")
     group2.add_argument("-s", "--search",\
-                        metavar="keyword", \
-                        help="search notes with the given pattern, regular expression is supported")
+                        metavar="pattern", \
+                        help="search notes with the given pattern")
     group2.add_argument("-r", "--review",\
                         action="store_true",\
                         default=False,\
                         help="review notebook to build knowledge")
-    group2.add_argument("-i", "--import_book",\
+    group2.add_argument("-i", "--import",\
                         metavar="input_file",\
                         nargs="?",\
                         const='__MEMO_IMPORT__',\
-                        help="import the notebook from a textfile")
-    group2.add_argument("-o", "--export_book",\
+                        dest="import_book",\
+                        help="import a notebook from the textfile")
+    group2.add_argument("-o", "--export",\
                         metavar="output_file",\
                         nargs="?",\
                         const='__MEMO_EXPORT__',\
+                        dest="export_book",\
                         help="export the notebook to a textfile")
     group2.add_argument("-e", "--desc",\
                         metavar="description",\
@@ -87,7 +90,7 @@ def parse_arguments(args):
                         help="I feel lucky :-)")
     parser.add_argument("book",\
                         metavar="book_name",\
-                        help="name or pattern of the book")
+                        help="name or pattern of book(s)")
     return parser.parse_args(args)
 
 def get_booklist(note_path):
