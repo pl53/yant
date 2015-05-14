@@ -1,0 +1,3 @@
+* search not match upper case, should ignore cases
+* add tag, default all
+* notebook meta info: name, desc, time(?), tags
