@@ -11,20 +11,23 @@ class EntryExcept(Exception):
 
 class Entry:
     ''' basic entry type for memo notebook '''
-    def __init__(self, key, note=[], cnt=0):
-        self.key = key.strip()
-        self.note = note[:]
-        #self.show_external_note() # why do I add this?
-        #if self.note == []:
-        #    self.append_notes()
-        self.rmb_cnt = cnt # how many times the user remember the entry
+    def __init__(self, key, note=[], weight=3):
+        try:
+            self.key = key.strip()
+            self.note = note[:]
+        except:
+            print("The key should be a string and note should be a list")
+            sys.exit(1)
+        if weight > 5 or weight < 1:
+            raise Exception("Weight for the entry should be an integer in [1, 5]")
+        self.weight = weight # how many times the user remember the entry
   
     def merge(self, entry):
         if self.key != entry.key:
             print("Cannot merge entries with different keys.")
         else:
             self.note += entry.note
-            self.rmb_cnt += entry.rmb_cnt
+            self.weight = (self.weight + entry.weight) // 2
 
     def del_note(self, i):
         try:
@@ -54,14 +57,17 @@ class Entry:
 
     def remember(self):
         '''the user remember the entry for this time'''
-        self.rmb_cnt += 1
+        if self.weight > 1:
+            self.weight -= 1
+            
 
     def forget(self):
         '''the user forget the entry for this time'''
-        self.rmb_cnt -= 1
+        if self.weight < 5:
+            self.weight += 1
 
     def mark_deletion(self):
-        self.rmb_cnt = 10000
+        self.weight = 0
 
     #def dump_value(self):
     #    '''dump the list of values as a string'''
@@ -83,9 +89,10 @@ class Entry:
         pass
 
     def show_user_note(self):
-        utils.paged_print(self.format_note())
-        #for note in self.format_note():
-        #    print(note)
+        if self.note:
+            utils.paged_print(self.format_note())
+        else:
+            utils.paged_print(["<No user note>"])
 
     def show_note(self):
         self.show_external_note()
