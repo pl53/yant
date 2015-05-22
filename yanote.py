@@ -8,6 +8,7 @@ import operator
 from itertools import accumulate
 import entry
 import book
+import yant_args
 from colors import colors
 colored = colors.colored
 
@@ -19,8 +20,8 @@ def check_python_version():
         quit()
 
 def get_data_path():
-    note_path = os.getenv("YANOTE_PATH")
-    #note_path = "./data"
+    #note_path = os.getenv("YANOTE_PATH")
+    note_path = "./devo_data"
     if note_path == None:
         note_path = os.path.join(os.getenv("HOME"), ".yanote")
     if not os.path.exists(note_path):
@@ -29,7 +30,13 @@ def get_data_path():
 
 def parse_arguments(args):
     parser = argparse.ArgumentParser(prog="python3 yanote.py")
-    #group1 = parser.add_mutually_exclusive_group()
+    group1 = parser.add_mutually_exclusive_group()
+    group1.add_argument("-b", "--book",\
+                        metavar="book",\
+                        help="book name")
+    group1.add_argument("-t", "--tag",\
+                        metavar="tag",\
+                        help="book tag")
     group2 = parser.add_mutually_exclusive_group()
     #parser.add_argument("-g", "--debug", action="store_true", default=False, \
     #                    help="debug mode, print more information")
@@ -40,8 +47,7 @@ def parse_arguments(args):
                         help="list notebooks matching given pattern")
     #parser.add_argument("-w", "--word", action="store_true", default=False,\
     #                    help="this is a word notebook")
-    group2.add_argument("-c",\
-                        "--create",\
+    group2.add_argument("-c", "--create",\
                         action="store_true",\
                         default=False,\
                         help="create a notebook")
@@ -88,9 +94,6 @@ def parse_arguments(args):
                         action="store_true",\
                         default=False, \
                         help="I feel lucky :-)")
-    parser.add_argument("book",\
-                        metavar="book_name",\
-                        help="name or pattern of book(s)")
     return parser.parse_args(args)
 
 def get_booklist(note_path):
@@ -103,7 +106,8 @@ def get_booklist(note_path):
 if __name__ == "__main__":
 
     check_python_version()
-    args = parse_arguments(sys.argv[1:])
+    #args = parse_arguments(sys.argv[1:])
+    args = yant_args.parse(sys.argv[1:])
  
     #meta_file = os.path.join(note_path, args.book+".mt")
     #book_type = ""
