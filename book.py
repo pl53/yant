@@ -193,7 +193,7 @@ class Notebook:
                     print("Warning:", "no", attr_desc, "in data.")
                     continue
                 if attr == "entries":
-                    fp.write(attr_desc + ":", "see all entries below\n")
+                    fp.write(attr_desc + ": see all entries below.\n")
                     fp.write(self.entry_delim)
                     for e in self.data[attr]:
                         fp.write(str(self.data[attr][e]))
