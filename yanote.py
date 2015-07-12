@@ -8,114 +8,27 @@ import operator
 from itertools import accumulate
 import entry
 import book
+import utils
 import yant_args
+import yant_utils
 from colors import colors
 colored = colors.colored
 
-meta_name = ".memo.meta"
+def main(argv):
 
-def check_python_version():
-    if sys.version_info.major < 3:
-        print("Please use Python 3 or higher.")
-        quit()
+    utils.require_python_version(3) # major version should be 3
+    args = yant_args.parse(argv[1:])
+    log = logging.getLogger("yant")
+    valid_name_pattern =  "^[a-zA-Z][a-zA-Z0-9_-]*$"
 
-def get_data_path():
-    #note_path = os.getenv("YANOTE_PATH")
-    note_path = "./devo_data"
-    if note_path == None:
-        note_path = os.path.join(os.getenv("HOME"), ".yanote")
-    if not os.path.exists(note_path):
-        os.makedirs(note_path)
-    return note_path
+    if args.book and not re.match(valid_name_pattern, args.book):
+            raise Exception("Invalid book name.")
+    if args.tag and not re.match(valid_name_pattern, args.tag):
+            raise Exception("Invalid tag name.")
 
-def parse_arguments(args):
-    parser = argparse.ArgumentParser(prog="python3 yanote.py")
-    group1 = parser.add_mutually_exclusive_group()
-    group1.add_argument("-b", "--book",\
-                        metavar="book",\
-                        help="book name")
-    group1.add_argument("-t", "--tag",\
-                        metavar="tag",\
-                        help="book tag")
-    group2 = parser.add_mutually_exclusive_group()
-    #parser.add_argument("-g", "--debug", action="store_true", default=False, \
-    #                    help="debug mode, print more information")
-    group2.add_argument("-l", "--list", \
-                        action="store_true", \
-                        default=False, \
-                        dest="lst", \
-                        help="list notebooks matching given pattern")
-    #parser.add_argument("-w", "--word", action="store_true", default=False,\
-    #                    help="this is a word notebook")
-    group2.add_argument("-c", "--create",\
-                        action="store_true",\
-                        default=False,\
-                        help="create a notebook")
-    group2.add_argument("-a", "--add",\
-                        metavar="title",\
-                        nargs='?',\
-                        const='__MEMO_ADD__',\
-                        help="add one note entry to the notebook")
-    group2.add_argument("-d", "--delete",\
-                        metavar="title",\
-                        nargs='?',\
-                        const='__MEMO_DELETE__',\
-                        help="delete the note entry with given title")
-    group2.add_argument("-u", "--update",\
-                        metavar="title",\
-                        nargs='?',\
-                        const='__MEMO_UPDATE__', \
-                        help="update the note entry with given title")
-    group2.add_argument("-s", "--search",\
-                        metavar="pattern", \
-                        help="search notes with the given pattern")
-    group2.add_argument("-r", "--review",\
-                        action="store_true",\
-                        default=False,\
-                        help="review notebook to build knowledge")
-    group2.add_argument("-i", "--import",\
-                        metavar="input_file",\
-                        nargs="?",\
-                        const='__MEMO_IMPORT__',\
-                        dest="import_book",\
-                        help="import a notebook from the textfile")
-    group2.add_argument("-o", "--export",\
-                        metavar="output_file",\
-                        nargs="?",\
-                        const='__MEMO_EXPORT__',\
-                        dest="export_book",\
-                        help="export the notebook to a textfile")
-    group2.add_argument("-e", "--desc",\
-                        metavar="description",\
-                        nargs='?',\
-                        const='__MEMO_DESC__',\
-                        help="update notebook description")
-    group2.add_argument("-f", "--fortune",
-                        action="store_true",\
-                        default=False, \
-                        help="I feel lucky :-)")
-    return parser.parse_args(args)
-
-def get_booklist(note_path):
-    # retrive current notebooks
-    all_files = os.listdir(note_path)
-    db_files = [f for f in all_files if f.endswith(".db")]
-    current_books = [name[:-3] for name in db_files]
-    return current_books
-
-if __name__ == "__main__":
-
-    check_python_version()
-    #args = parse_arguments(sys.argv[1:])
-    args = yant_args.parse(sys.argv[1:])
- 
-    #meta_file = os.path.join(note_path, args.book+".mt")
-    #book_type = ""
-    #book_list = get_booklist(note_path)
-    #validate_metafile(note_path, book_file)
-    note_path = get_data_path()
-    all_books = get_booklist(note_path) # note_path guaranteed to be valid
-    book_pattern = args.book.strip() # support regular expression
+    note_path = yant_utils.get_data_path()
+    all_books = yant_utils.get_booklist(note_path) 
+    
     try:
         matched_books = [b for b in all_books if re.match(book_pattern, b)]
     except:
@@ -203,6 +116,7 @@ if __name__ == "__main__":
         print("{0} matched record(s) found in {1} book(s).".format(\
               colored(str(matched_entry_cnt), "r"), \
               colored(str(matched_book_cnt), "r")))
+
     elif args.review:
         review_seq = []
         note_cnt = [bo.get_entry_count() for bo in book_obj_list]
@@ -213,13 +127,15 @@ if __name__ == "__main__":
         random.shuffle(review_seq)
         for i, r in enumerate(review_seq):
             print("BOOK:", colored(r[0], "y"))
-            rval = r[1].random_review([r[2]])
-            if rval != 0:
+            try:
+                review_cnt = r[1].random_review([r[2]])
+            except KeyboardInterrupt:
                 break
+        for bo in book_obj_list:
+            bo.save_book()
         print(colored(("\nYou have finished reviewing {} of {} records,"+\
               " keep going!").format(i+1, len(review_seq)), 'b'))
-        #for bo in book_obj_list:
-        #    bo.random_review()
+
     elif args.fortune:
         note_cnt = [bo.get_entry_count() for bo in book_obj_list]
         accumulated_cnt = list(accumulate(note_cnt, operator.add))
@@ -246,3 +162,11 @@ if __name__ == "__main__":
 #            entry.show_note()
 #        else:
 #            print("None entry in selected books.")
+
+
+if __name__ == "__main__":
+    try:
+        main(sys.argv)
+    except e:
+        print("Error:", e)
+

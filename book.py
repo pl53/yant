@@ -4,6 +4,7 @@ import sys
 import re
 import subprocess
 import random
+import yant_utils
 from contextlib import contextmanager
 from colors import colors
 colored = colors.colored
@@ -31,21 +32,24 @@ def open_book(obj):
         sys.stderr.write("Unable to store data.\n")
 
 # no write back
-def read_book(func):
+def _read_data(func):
     def inner(obj, *args):
         with open(obj.filename, "rb") as fp:
-            #obj.desc, obj.entries = pickle.load(fp)
             obj.data = pickle.load(fp)
         val = func(obj, *args)
         return val
     return inner
 
-''' notebook of English entries
+def store_data(data, filename):
+    with open(filename, "wb") as fp:
+        pickle.dump(data, fp)
+
+''' notebook of English notes
 '''
 class Notebook:
     # used for import/export
     attr_delim = "+" * 20 + "\n" # delimitter of book attributes
-    entry_delim = "-" * 20 + "\n"
+    note_delim = "-" * 20 + "\n"
     sdelim = ": "
     attr_keys = ["name", "tags", "desc", "ctime", "mtime", \
                  "reserved_property_1", "reserved_property_2", "entries"]
@@ -58,15 +62,15 @@ class Notebook:
                  "Reserved property 2", \
                  "Note entries"]
 
-    def __init__(self, file_name, entry_type):
+    def __init__(self, file_name, note_class):
         self.filename = file_name
-        self.entry_type = entry_type
+        self.note_class = note_class
         self.book_name = self.filename.split("/")[-1][:-3]
         if not re.match("[a-zA-Z0-9_-]+", self.book_name):
             raise Exception("Illegal book name "+self.book_name + "Book name " +
                 "should consist of only letters, numbers, dash, and underscore.") 
 
-    def create_book(self, desc, tags=["all"]):
+    def create_book(self, desc="No description", tags=["all"]):
         with open(self.filename, "wb") as fp:
             data = {}
             current_time = time.ctime()
@@ -75,23 +79,24 @@ class Notebook:
             data["desc"] = desc
             data["ctime"] = current_time # create time
             data["mtime"] = current_time # modifited time
-            data["reserved_property_1"] = "None"
-            data["reserved_property_2"] = "None"
+            data["reserved_property_1"] = None
+            data["reserved_property_2"] = None
             data["entries"] = {}
             pickle.dump(data, fp)
+
+    def save_book(self):
+        store_data(self.data, self.filename)
 
     def add_tag(self, new_tag):    
         if not re.match("[a-zA-Z0-9_-]+", new_tag):
             raise Exception("Book tag could be only letters, numbers, -, and _.") 
         with open_book(self):
-            if new_tag.lower() in self.data["tags"]:
+            if new_tag in self.data["tags"]:
                 print("Tag", new_tag, "already exists.")
             else:
-                self.data["tags"].append(new_tag.lower())
+                self.data["tags"].append(new_tag)
 
     def delete_tag(self, tag):
-        if not re.match("[a-zA-Z0-9_-]+", new_tag):
-            raise Exception("Book tag could be only letters, numbers, -, and _.") 
         with open_book(self):
             try:
                 self.data["tags"].remove(tag.lower())
@@ -102,15 +107,15 @@ class Notebook:
         with open_book(self):
             self.data["desc"] = desc
 
-    def add_entry(self, raw_key, entry_type):
+    def add_note(self, raw_key, note_class):
         key = raw_key.strip()
         with open_book(self):
             if key not in self.data["entries"]:
-                self.data["entries"][key] = entry_type(key)
+                self.data["entries"][key] = note_class(key)
             self.data["entries"][key].append_notes()
             print("One record added/updated.")
 
-    def update_entry(self, raw_key):
+    def update_note(self, raw_key):
         key = raw_key.strip()
         with open_book(self):
             if key in self.data["entries"]:
@@ -123,7 +128,7 @@ class Notebook:
             else:
                 print("Warning: {} not in the book".format(key))
 
-    def delete_entry(self, raw_key):
+    def delete_note(self, raw_key):
         key = raw_key.strip()
         with open_book(self):
             try:
@@ -131,23 +136,48 @@ class Notebook:
                 print("Record deleted.")
             except KeyError as e:
                 print("Nonexistent keyword " + key + ", skip.")
-    @read_book
-    def description(self):
-        print(self.data["desc"])
+    @_read_data
+    def get_description(self):
+        return self.data["desc"]
 
-    @read_book
-    def get_entry_count(self):
+    @_read_data
+    def set_description(self, desc=None):
+        return self.data["desc"]
+
+    @_read_data
+    def get_note_count(self):
         return len(self.data["entries"])
 
-    @read_book
-    def search_entries(self, pattern):
+    @_read_data
+    def get_tags(self):
+        return self.data["tags"]
+
+    def add_tag(self, tag):
+        with open_book(self):
+            if tag in self.data["tags"]:
+                self.logger.warn("tag already exists. skip.")
+            else:
+                self.data["tags"].append(tag)
+                self.logger.info("tag {0} added.".format(tag))
+
+    def delelte_tag(self, tag):
+        with open_book(self):
+            if tag in self.data["tags"]:
+                self.logger.warn("tag already exists. skip.")
+            else:
+                self.data["tags"].remove(tag)
+                self.logger.info("tag {0} deleted.".format(tag))
+
+    @_read_data
+    def search_notes(self, pattern):
         pattern = pattern.lower().strip()
         result = []
         prog = re.compile(pattern)
         with open_book(self):
             for e in self.data["entries"]:
                 for w in self.data["entries"][e].__str__().split():
-                    if prog.match(w.strip("\"\'")): # match found
+                     # 'search' instead of 'match' to find anywhere in string
+                    if prog.search(w):
                         result.append(self.data["entries"][e])
                         break
         return result
@@ -163,7 +193,6 @@ class Notebook:
             for ri in random_indices:
                 try:
                     e = self.data["entries"][keys[ri]]
-                    review_cnt += 1
                     print("Remember this note? ===========> ", end="")
                     e.show_key()
                     cmd = input("Press {} to see the notes => ".\
@@ -173,16 +202,21 @@ class Notebook:
                                  "Next(<{3}>)=> ").format(colored('d', 'y'), \
                                  colored("u", "y"), colored('q', 'y'), \
                                  colored('Enter', 'y'))) 
-                    e.exec_cmd(cmd)
-                except (KeyboardInterrupt, entry.EntryExcept, IndexError) as e:
-                    print("Review interrupted by", e)
-                    rval = 1
+                    if cmd in "dD":
+                        del self.data["entries"][keys[ri]]
+                    else:
+                        e.exec_cmd(cmd)
+                    review_cnt += 1
+                except KeyboardInterrupt:
                     break
-            else:
-                rval = 0
-        return rval   
+                except Exception as e:
+                    print("Review interrupted by", e)
+                    raise
+
+        #store_data(self.data, self.filename)
+        return review_cnt
  
-    @read_book
+    @_read_data
     def export_book(self, raw_filename):
         dump_file = raw_filename.strip()
         print("Export the notebook to " + dump_file)
@@ -194,10 +228,10 @@ class Notebook:
                     continue
                 if attr == "entries":
                     fp.write(attr_desc + ":", "see all entries below\n")
-                    fp.write(self.entry_delim)
+                    fp.write(self.note_delim)
                     for e in self.data[attr]:
                         fp.write(str(self.data[attr][e]))
-                        fp.write(self.entry_delim)
+                        fp.write(self.note_delim)
                 elif attr == "tags":
                     fp.write(attr_desc + self.sdelim + ",".join(self.data[attr]))
                     fp.write("\n"+self.attr_delim)
@@ -212,7 +246,7 @@ class Notebook:
             with open(src_file, "r") as fp:
                 raw_book = fp.read().split(self.attr_delim)
             for attr in raw_book:
-                attr_lines = attr.split(self.entry_delim)
+                attr_lines = attr.split(self.note_delim)
                 attr_desc, attr_value = attr_lines[0].split(self.sdelim)
                 try:
                     attr = self.attr_keys[self.attr_desc.index(attr_desc)]
@@ -228,9 +262,9 @@ class Notebook:
                              if note_str == '':
                                  continue
                              note = note_str.strip().split('\n')
-                             new_entry = self.entry_type(note[0], note[1:])
+                             new_note = self.note_class(note[0], note[1:])
                              # note[0] is key
-                             self.data["entries"][note[0]] = new_entry 
+                             self.data["entries"][note[0]] = new_note 
                     except:
                         sys.stderr.write("Error during importing process.\n")
                 elif attr == "tags":
@@ -238,8 +272,8 @@ class Notebook:
                 else:
                     self.data[attr] = attr_value 
 
-    @read_book
-    def pick_random_entry(self):
+    @_read_data
+    def pick_random_note(self):
         key_list = list(self.data["entries"].keys())
         if key_list != []:
             random_key = random.choice(key_list)
@@ -247,12 +281,12 @@ class Notebook:
         else:
             return None
 
-    @read_book
-    def randomize_entries(self):
+    @_read_data
+    def randomize_notes(self):
         random.shuffle(self.data["entries"])
         return self.data["entries"]
 
-    @read_book
+    @_read_data
     def __iter__(self):
             self.index = -1
             return self
@@ -267,30 +301,66 @@ class Notebook:
                 pickle.dump(self.data, fp)
             raise StopIteration
 
+#TODO: make this a singleton
+class TagManager:
+        
+    def __init__(self):
+        data_path = yant_utils.get_data_path()
+        self.filename = os.path.join(note_path, "tag.data")
+        self.logger = logging.getLogger(self)
+        try:
+            self.load_tag()
+        except:
+            self.logger.warn("Cannot load tags, will create a new tag file")
+            all_books = yant_utils.get_booklist(data_path)
+            self.data = {"all":all_books}
+            self.dump_tag()
 
-#    def open(self):
-#        if self.opened == True:
-#            return
-#        try:
-#            with open(self.filename, "rb") as fp:
-#                self.data["entries"] = pickle.load(fp)
-#                #self.keys = list(self.data["entries"].keys())
-#                #random.seed()
-#                #random.shuffle(self.keys)
-#                #return self.data["entries"]
-#        except pickle.PickleError as e:
-#            print("unable to read notebook")
-#        self.opened = True
-#
-#    def close(self):
-#        if self.opened == False:
-#            # add exception later
-#            print("Error: notebook not opened.")
-#            return
-#        try:
-#            with open(self.filename, "wb") as fp:
-#                #pickle.dump((self.data["entries"]), fp)
-#                return pickle.dump(self.data["entries"], fp)
-#        except pickle.PickleError as e:
-#            print("unable to store entries to notebook")
-#        self.opened = False
+    def __str__(self):
+        return "TagManager"
+
+    def load_tag(self):
+        with open(self.filename, "rb") as tag_fp: 
+            self.data = pickle.load(tag_fp)
+
+    def dump_tag(self):
+        with open(self.filename, "wb") as tag_fp:
+            pickle.dump(self.data, tag_fp)
+
+    def get_tags(self):
+        return list(self.data.keys())
+
+    def get_books(self, tag):
+        if tag not in self.data:
+            self.logger.warn("tag {0} doesn't exist.".format(tag))
+            return []
+        else:
+            return self.data[tag]
+
+    def get_mapping(self):
+        return self.data
+
+    def add_tag(self, tag, book):
+        try:
+            if tag not in self.data:
+                self.data[tag] = [book]
+                self.dump_tag()
+            elif book not in self.data:
+                self.data[tag].append(book)
+                self.dump_tag()
+            else:
+                self.logger.error(book + " already has tag " + tag + ". skip.")
+        except:
+             self.logger.error("attaching tag to book failed.")
+
+    def delete_tag(self, tag, book):
+        try:
+            if tag not in self.data:
+                self.logger.error("tag {0} doesn't exist.".format(tag))
+            elif book not in self.data[tag]:
+                self.logger.error(book + " doesn't have the tag " + tag + ".")
+            else:
+                self.data[tag].remove(book)
+                self.dump_tag()
+        except:
+            self.logger.error("deleting tag from book failed.")
