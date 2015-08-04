@@ -66,6 +66,7 @@ class TagManager:
                 self.data[tag].remove(book)
                 if self.data[tag] == []:
                     self.logger.warn("No book has the tag " + tag + " now. Remove the tag.")
+                    del self.data[tag]
                 self.dump_tag()
         except:
             self.logger.error("Remove the tag from book failed.")

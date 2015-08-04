@@ -6,10 +6,12 @@ colored = colors.colored
 
 class Entry:
     ''' basic entry type for memo notebook '''
-    def __init__(self, key, note=[], weight=3):
+    def __init__(self, key, note=[], weight=3, ask_user_input=False):
         try:
             self.key = key.strip()
             self.note = note[:]
+            if ask_user_input:
+                self.append()
         except:
             raise YantException("Key should be string and note should be list")
         if weight > 5 or weight < 1:
@@ -27,29 +29,29 @@ class Entry:
             self.note += entry.note
             self.weight = (self.weight + entry.weight) // 2
 
-    def del_note(self, i):
+    def delete(self, i):
         try:
             self.note.pop(i)
         except IndexError as e:
             raise YantException("Note doesn't exist.")
 
-    def input_note(self):
+    def input(self):
         return input("Add a note for {} (press {} to finish): "\
                    .format(colored(self.key, "g"), colored("Enter", "c")))
 
-    def append_notes(self):
+    def append(self):
         while True:
-            new_note = self.input_note()
+            new_note = self.input()
             if new_note == "":
                 break
             self.note.append(new_note)
 
-    def update_notes(self):
-        return utils.update_list(self.note, self.input_note, "note")
+    def update(self):
+        return utils.update_list(self.note, self.input, "note")
 
     def update_n_append(self):
-        self.update_notes()
-        self.append_notes()
+        self.update()
+        self.append()
 
     '''the user remember the entry for this time
     '''
@@ -66,12 +68,18 @@ class Entry:
     def mark_deletion(self):
         self.weight = 0
 
+    def can_delete(self):
+        return self.weight == 0
+
     def format_note(self):
         return ["#"+ str(i+1) + ": " + utils.fstr(s) \
                     for i,s in enumerate(self.note)]
 
     ''' TODO: make "green" configurable
     '''
+    def get_key(self):
+        return self.key
+
     def show_key(self):
         '''first step of a three-step process'''
         print(colored(self.key, "green"))
@@ -90,21 +98,38 @@ class Entry:
         self.show_external_note()
         self.show_user_note()
 
-    def exec_cmd(self, cmd):
-        if len(cmd) != 1:
-            print("Illegal command.")
-            return
-        CMD = cmd.upper()
-        if "Y" in CMD:
+    def exec_cmd(self, cmd, parent_process_name="Process"):
+        CMD = cmd.strip().upper()
+        if "" == CMD:
+            return False # nothing to do
+        elif "Y" == CMD:
             self.remember()
-        elif "N" in CMD: 
+        elif "N" == CMD: 
             self.forget()
-        elif 'U' in CMD:
-            self.update_notes()
-        elif "Q" in CMD:
-            raise KeyboardInterrupt("review ends.")
+        elif 'D' == CMD:
+            self.mark_deletion()
+        elif 'U' == CMD:
+            self.update()
+        elif "Q" == CMD:
+            raise KeyboardInterrupt(parent_process_name + " ends.")
         else:
-            print("Unkown command.")
+            print("Unkown command. Skip.")
+            return False # note not modified
+
+        return True # note modified
+
+    # return True if note modified, else False
+    def review(self):
+        print("Remember this note? ===========> ", end="")
+        self.show_key()
+        cmd = input("Press {} to see the notes => ".\
+                    format(colored("Enter", "c"))) # just to continue
+        self.show_note()
+        cmd = input(("Delete({0}), Update({1}), Quit({2}), or " + \
+                     "Next(<{3}>)=> ").format(colored('d', 'y'), \
+                     colored("u", "y"), colored('q', 'y'), \
+                     colored('Enter', 'y'))) 
+        return self.exec_cmd(cmd, parent_process_name="Review")
     
     def __str__(self):
        s = '\n'.join([self.key] + self.note)

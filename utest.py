@@ -17,6 +17,11 @@ class NoteEntryTestCase(unittest.TestCase):
         self.assertEqual(self.dog_entry1.note, merged_note)
         with self.assertRaises(utils.YantException):
             self.dog_entry1.merge(self.cat_entry)
+        # reset merged note entry
+        self.dog_entry1 = entry.Entry("dog", ["a husky dog", "age: 4"])
+    
+   def test_exec_cmd(self):
+       pass
         
     ''' nothing to do here, Python does GC
     '''

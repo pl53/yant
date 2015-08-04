@@ -3,7 +3,18 @@ import subprocess
 import termios
 import sys
 
-def SysCall(cmd, bg=False):
+def require_python_version(required):
+    if sys.version_info.major < required:
+        print("Please use Python {0} or higher.".format(required))
+        sys.exit(1)
+
+class YantException(Exception):
+    def __init__(self, s):
+        self.value = s
+    def __str__(self):
+        return str(self.value)
+
+def sys_cmd(cmd, bg=False):
     try:
         rv = subprocess.Popen(cmd) # run in background
         if not bg:
@@ -80,10 +91,13 @@ def update_list(lst, new_item_func, item_name="item"):
         for i in range(len(lst)):
             print("#"+str(i+1)+":", lst[i])
 
-    print("A valid update instruction is an operator (a/d/r, append/delete/replace) with an optional index.")
-    print("For example, 'a' -- append an {0}, 'd1' -- delete {0} #1, 'r2' -- replace {0} #2.".format(item_name))
-    print("If index is not specified for d/r, the last {0} will be the target.".format(item_name))
-    action = input("Input your update instruction: ")
+    print("A valid update instruction is an operator" + \
+          "(a/d/r, append/delete/replace) with an optional index.")
+    print(("For example, 'a' -- append {0}, 'd1' -- delete {0} #1," + \
+           "'r2' -- replace {0} #2.").format(item_name))
+    print("If index is not specified for d/r, the last {0} will be the target."\
+          .format(item_name))
+    action = input("Input your update instruction (<Enter> to finish): ")
     while action != "":
         try:
             op = action[0].lower()
