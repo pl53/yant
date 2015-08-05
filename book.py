@@ -149,7 +149,8 @@ class Notebook:
         return len(self.data["entries"])
 
     ''' tag related'''
-    def add_tag(self, new_tag):    
+    def add_tag(self, tag):    
+        new_tag = tag.strip()
         self.load_book()
         if new_tag in self.data["tags"]:
             print("Tag {0} already exists.".format(new_tag))
