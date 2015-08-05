@@ -150,7 +150,8 @@ class Notebook:
 
     ''' tag related'''
     def add_tag(self, tag):    
-        new_tag = tag.strip()
+        #new_tag = tag.strip()
+        new_tag = tag
         self.load_book()
         if new_tag in self.data["tags"]:
             print("Tag {0} already exists.".format(new_tag))
@@ -165,9 +166,9 @@ class Notebook:
         try:
             self.data["tags"].remove(tag.lower())
             self.update_mtime()
-            print("Tag {0} deleted.".format(tag))
+            print("Tag {0} deleted from book.".format(tag))
         except ValueError:
-            print("Tag", tag, "doesn't exist.")
+            print("Book", self.book_name, "doesn't have tag", tag+".")
         self.save_book()
 
     def get_tags(self):

@@ -29,12 +29,12 @@ def main(argv):
 
     entry_type = Entry
     yant_obj = Yant(entry_type)
-
+    '''
     if args.book:
         yant_utils.validate_name(valid_name_pattern, args.book)
     if args.cmd not in ["import", "export", "update"] and args.tag:
         yant_utils.validate_name(valid_name_pattern, args.tag)
-        
+    '''    
     all_books = yant_utils.list_all_books() 
    
     if args.cmd == "list":
