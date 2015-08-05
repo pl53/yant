@@ -285,7 +285,7 @@ class Notebook:
             raw_book = fp.read().split(self.attr_delim)
         for attr in raw_book:
             attr_lines = attr.split(self.note_delim)
-            attr_desc, attr_value = attr_lines[0].split(self.sdelim)
+            attr_desc, attr_value = attr_lines[0].strip().split(self.sdelim)
             try:
                 attr = self.attr_keys[self.attr_desc.index(attr_desc)]
             except:

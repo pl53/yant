@@ -2,7 +2,7 @@ import argparse
 
 def parse(args):
     parser = argparse.ArgumentParser(prog="yant")
-    subparsers = parser.add_subparsers(dest="cmd")
+    subparsers = parser.add_subparsers(dest="sub_command")
 
     parser_create = subparsers.add_parser("create", help="create a book (with tags)")
     parser_create.add_argument("-b", "--book", metavar="book",
@@ -34,7 +34,8 @@ def parse(args):
     parser_up.add_argument("-n", "--note", metavar="note", \
                            help="update a note, if note contains @#, do replace")
     
-    parser_show = subparsers.add_parser("list", help="list books by name or tag")
+    parser_show = subparsers.add_parser("list", aliases=["lst", "show"],
+                                        help="list books by name or tag")
     group_show = parser_show.add_mutually_exclusive_group(required=True)
     group_show.add_argument("-b", "--book", metavar="book", help="book name")
     group_show.add_argument("-t", "--tag", metavar="tag", default="all",  help="tag name")
