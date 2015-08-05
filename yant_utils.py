@@ -2,7 +2,7 @@ import os
 import re
 
 def get_data_path():
-    note_path = os.getenv("YANOTE_PATH")
+    note_path = os.getenv("YANT_PATH")
     #note_path = "./devo_data"
     if note_path == None:
         note_path = os.path.join(os.getenv("HOME"), ".yanote")
