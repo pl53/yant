@@ -1,4 +1,7 @@
-Yanote: A CLI notebook tool (previously *Memo*)
+Yant: Yet Another Note-taking Tool (previously *Yanote*)
+
+*This README is out-of-dated. Please use "yant --help" for the latest usage.
+I will update this document when I have time.*
 
 * Goal
   - The primary goal of Yanote is storing information or knowledge as key-value
