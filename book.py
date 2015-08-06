@@ -183,9 +183,9 @@ class Notebook:
             print("Unable to update mtime. Book not loaded?")
 
     def search_notes(self, pattern):
-        pattern = pattern.lower().strip()
+        pattern = pattern.strip()
         result = []
-        prog = re.compile(pattern)
+        prog = re.compile(pattern, re.IGNORECASE)
         self.load_book()
         for e in self.data["entries"]:
             # 'search' instead of 'match' to find anywhere in string
