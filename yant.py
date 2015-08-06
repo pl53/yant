@@ -21,7 +21,7 @@ def main(argv):
 
     utils.require_python_version(3) # major version should be 3
     args = yant_args.parse(argv[1:])
-    if args.cmd == None:
+    if args.sub_command == None:
         raise Exception("No command provided. Use '-h' to see available commands.")
 
     log = logging.getLogger("yant")
@@ -32,12 +32,12 @@ def main(argv):
     '''
     if args.book:
         yant_utils.validate_name(valid_name_pattern, args.book)
-    if args.cmd not in ["import", "export", "update"] and args.tag:
+    if args.sub_command not in ["import", "export", "update"] and args.tag:
         yant_utils.validate_name(valid_name_pattern, args.tag)
     '''    
     all_books = yant_utils.list_all_books() 
    
-    if args.cmd == "list":
+    if args.sub_command == "list":
         if args.book:
             if args.book in all_books:
                 yant_obj.use_book(args.book)
@@ -60,7 +60,7 @@ def main(argv):
                 print(colored(line, "y"))
             return
 
-    elif args.cmd == "create":
+    elif args.sub_command == "create":
         if args.book in all_books:
             sys.stderr.write("Notebook "+ args.book + " exists. ")
             sys.stderr.write("No new notebook created.\n")
@@ -69,39 +69,39 @@ def main(argv):
             yant_obj.create_book(args.book, args.tag, desc)
         return
 
-    elif args.cmd == "add":
+    elif args.sub_command == "add":
         if args.note: # add a note
             yant_obj.add_note(args.book, args.note)
         else: # add a tag
             yant_obj.add_tag(args.book, args.tag)
 
-    elif args.cmd == "update":
+    elif args.sub_command == "update":
         yant_obj.update_note(args.book, args.note)
 
-    elif args.cmd == "delete":
+    elif args.sub_command == "delete":
         if args.note:
             yant_obj.delete_note(args.book, args.note)
         else:
             yant_obj.delete_tag(args.book, args.tag)
 
-    elif args.cmd == "import":
+    elif args.sub_command == "import":
         yant_obj.import_book(args.book, args.file)
 
-    elif args.cmd == "export":
+    elif args.sub_command == "export":
         yant_obj.export_book(args.book, args.file)
 
-    elif args.cmd == "find":
+    elif args.sub_command == "find":
         if args.book:
             yant_obj.find(args.keyword, args.book, "book")
         else:
             yant_obj.find(args.keyword, args.tag, "tag")
-    elif args.cmd == "review":
+    elif args.sub_command == "review":
         if args.book:
             yant_obj.review(args.book, "book")
         else:
             yant_obj.review(args.tag, "tag")
 
-    elif args.cmd == "fortune":
+    elif args.sub_command == "fortune":
         if args.book:
             yant_obj.fortune(args.book, "book")
         else:
