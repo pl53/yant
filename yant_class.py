@@ -32,11 +32,15 @@ class Yant:
                 self.tag_manager.tag_book(tag, book)
 
     def use_book(self, book):
+        if not self.exist_book(book):
+            raise Exception("No data for book '{}' found.".format(book))
         self.opened_books[book] = Notebook(book, self.note_class) 
 
     def use_tag(self, tag):
         books = self.tag_manager.get_books(tag)
         for b in books:
+            if not self.exist_book(b):
+                raise Exception("No data for book '{}' found.".format(b))
             self.opened_books[b] = Notebook(b, self.note_class)
 
     def add_note(self, book, note_title):

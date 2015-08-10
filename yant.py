@@ -119,7 +119,7 @@ def main(argv):
             yant_obj.fortune(args.target, "book")
 
 if __name__ == "__main__":
-#    try:
+    try:
         main(sys.argv)
-#    except Exception as e:
-#        print("Error:", e)
+    except Exception as e:
+        print("Error:", e)
