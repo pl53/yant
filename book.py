@@ -218,11 +218,10 @@ class Notebook:
             if self.data["mtime"] != self.old_mtime:
                 self.save_book()
             if self.review_cnt != 0:
-                msg = ("{} of {} records in {} have been reviewed.").format(
-                       self.review_cnt,
-                       self.get_note_count(),
-                       self.book_name)
-                print(colored(msg, 'b'))
+                print(("{} of {} records in {} have been reviewed.").format(
+                       colored(str(self.review_cnt), "r"),
+                       colored(str(self.get_note_count()), "r"),
+                       colored(self.book_name, "r")))
             return self.review_cnt
         except AttributeError as e:
             print(e, "forgot to call start_review before ending review?")

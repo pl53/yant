@@ -23,7 +23,7 @@ def main(argv):
     args = yant_args.parse(argv[1:])
     if args.sub_command == None:
         raise Exception("No command provided. Use '-h' to see available commands.")
-    log_file = os.path.join(yant_utils.get_data_path, "yant.log")
+    log_file = os.path.join(yant_utils.get_data_path(), "yant.log")
     logging.basicConfig(filename=log_file, level=logging.DEBUG)
     logger = logging.getLogger("Yant")
     logger.info("Yant starts.")
