@@ -23,10 +23,10 @@ def main(argv):
     args = yant_args.parse(argv[1:])
     if args.sub_command == None:
         raise Exception("No command provided. Use '-h' to see available commands.")
-
-    logging.basicConfig(filename='yant.log',level=logging.DEBUG)
+    log_file = os.path.join(yant_utils.get_data_path, "yant.log")
+    logging.basicConfig(filename=log_file, level=logging.DEBUG)
     logger = logging.getLogger("Yant")
-    logger.info("Yant started...")
+    logger.info("Yant starts.")
 
     valid_name_pattern =  "^[a-zA-Z][a-zA-Z0-9_-]*$"
 

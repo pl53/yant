@@ -120,7 +120,7 @@ class Notebook:
                 print("Note not updated.")
             self.update_mtime()
         else:
-            print("Warning: {} not in the book".format(key))
+            print("Error: '{}' not in the book '{}'".format(key, self.book_name))
         self.save_book()
 
     def delete_note(self, raw_key):
@@ -218,7 +218,7 @@ class Notebook:
             if self.data["mtime"] != self.old_mtime:
                 self.save_book()
             if self.review_cnt != 0:
-                msg = ("{} of {} records in {} have been reviewed.\n").format(
+                msg = ("{} of {} records in {} have been reviewed.").format(
                        self.review_cnt,
                        self.get_note_count(),
                        self.book_name)
