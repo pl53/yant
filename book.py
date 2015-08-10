@@ -132,7 +132,7 @@ class Notebook:
             self.save_book()
             print("Record deleted from book '" + self.book_name + "'.")
         except KeyError as e:
-            print("Note title " + key +  "doesn't exist, skip.")
+            print("Note with the title '" + key +  "' not found, skip.")
 
     def get_description(self):
         self.load_book()
@@ -164,7 +164,7 @@ class Notebook:
         try:
             self.data["tags"].remove(tag.lower())
             self.update_mtime()
-            print("Tag '{0}' deleted from book.".format(tag))
+            print("Tag '{0}' deleted from book '{1}'.".format(tag, self.book_name))
         except ValueError:
             print("Book '" + self.book_name + "' doesn't have tag '" +tag+"'.")
         self.save_book()
