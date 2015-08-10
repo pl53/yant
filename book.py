@@ -5,10 +5,10 @@ import sys
 import re
 import subprocess
 import random
-from contextlib import contextmanager
+import logging
 
 import entry
-import yant_utils
+from yant_utils import get_data_path
 from colors import colors
 colored = colors.colored
 
@@ -34,27 +34,25 @@ class Notebook:
         self.book_name = book_name
         self.note_class = note_class
         self.data = {}
-        self.data_file = os.path.join(
-                             yant_utils.get_data_path(),
-                             book_name+".db")
+        self.data_file = os.path.join(get_data_path(), book_name+".db")
+        self.logger = logging.getLogger("Book")
         self.is_data_loaded = False
 
-    def create_book(self, tag="", desc="No description"):
+    def create_book(self, tags=[], desc="No description"):
+        if "all" not in tags: # the default tag that every book must have
+            tags.append("all")
+        data = {}
+        current_time = time.ctime()
+        data["name"] = self.book_name
+        data["tags"] = tags
+        data["desc"] = desc
+        data["ctime"] = current_time # create time
+        data["mtime"] = current_time # modifited time
+        data["reserved_property_1"] = None
+        data["reserved_property_2"] = None
+        data["entries"] = {}
+
         with open(self.data_file, "wb") as fp:
-            data = {}
-            current_time = time.ctime()
-            data["name"] = self.book_name
-            data["tags"] = ["all"]
-            data["desc"] = desc
-            data["ctime"] = current_time # create time
-            data["mtime"] = current_time # modifited time
-            data["reserved_property_1"] = None
-            data["reserved_property_2"] = None
-            data["entries"] = {}
-
-            if tag != "" and tag != "all":
-                data["tags"].append(tag)
-
             pickle.dump(data, fp)
 
     def load_book(self):
@@ -107,7 +105,7 @@ class Notebook:
         else:
             self.data["entries"][key] = note_obj
         self.update_mtime()
-        print("One record added/updated.")
+        print("Record added/updated to book '" + self.book_name + "'.")
         self.save_book()
 
     def update_note(self, raw_key):
@@ -132,7 +130,7 @@ class Notebook:
             self.data["entries"].pop(key)
             self.update_mtime()
             self.save_book()
-            print("Note deleted.")
+            print("Record deleted from book '" + self.book_name + "'.")
         except KeyError as e:
             print("Note title " + key +  "doesn't exist, skip.")
 
@@ -166,9 +164,9 @@ class Notebook:
         try:
             self.data["tags"].remove(tag.lower())
             self.update_mtime()
-            print("Tag {0} deleted from book.".format(tag))
+            print("Tag '{0}' deleted from book.".format(tag))
         except ValueError:
-            print("Book", self.book_name, "doesn't have tag", tag+".")
+            print("Book '" + self.book_name + "' doesn't have tag '" +tag+"'.")
         self.save_book()
 
     def get_tags(self):
@@ -179,6 +177,7 @@ class Notebook:
     def update_mtime(self):
         try:
             self.data["mtime"] = time.ctime()
+            self.logger.info("mtime updated.")
         except:
             print("Unable to update mtime. Book not loaded?")
 

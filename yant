@@ -1,2 +1,2 @@
 #!/bin/bash
-/usr/local/yant/yant.py "$@"
+python3 /usr/local/yant/yant.py "$@"

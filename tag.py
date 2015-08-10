@@ -39,7 +39,7 @@ class TagManager:
 
     def get_books(self, tag):
         if tag not in self.data:
-            self.logger.warn("Tag {0} doesn't exist in TagManager.".format(tag))
+            self.logger.warning("Tag {0} doesn't exist in TagManager.".format(tag))
             return []
         else:
             return self.data[tag]
@@ -52,11 +52,11 @@ class TagManager:
             if tag not in self.data:
                 self.data[tag] = [book]
                 self.save_tag()
-            elif book not in self.data:
+            elif book not in self.data[tag]:
                 self.data[tag].append(book)
                 self.save_tag()
             else:
-                self.logger.warn(book + " already has tag " + tag + ". skip.")
+                self.logger.warning(book + " already has tag " + tag + ". skip.")
         except:
              self.logger.error("Apply tag to book failed.")
 
@@ -69,7 +69,7 @@ class TagManager:
             else:
                 self.data[tag].remove(book)
                 if self.data[tag] == []:
-                    self.logger.warn("No book has the tag " + tag + " now. Remove the tag.")
+                    self.logger.warning("No book has the tag '" + tag + "' now. Remove the tag.")
                     del self.data[tag]
                 self.save_tag()
         except:

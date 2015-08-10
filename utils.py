@@ -97,7 +97,8 @@ def update_list(lst, new_item_func, item_name="item"):
            "'r2' -- replace {0} #2.").format(item_name))
     print("If index is not specified for d/r, the last {0} will be the target."\
           .format(item_name))
-    action = input("Input your update instruction (<Enter> to finish): ")
+    prompt = "Input your update instruction (<Enter> to finish): "
+    action = input(prompt)
     while action != "":
         try:
             op = action[0].lower()
@@ -122,6 +123,6 @@ def update_list(lst, new_item_func, item_name="item"):
         except (ValueError, IndexError) as e:
             print("Invalid update operation:", e, end='.\n')
             return 1
-        action = input("Input your update instruction: ")
+        action = input(prompt)
     return 0
 
