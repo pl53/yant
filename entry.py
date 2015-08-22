@@ -56,7 +56,7 @@ class Entry:
     '''the user remember the entry for this time
     '''
     def remember(self):
-        if self.weight > 1:
+        if self.weight > 0:
             self.weight -= 1
 
     '''the user forget the entry for this time
