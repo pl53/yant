@@ -7,7 +7,7 @@ def parse(args):
     parser_create = subparsers.add_parser("create", help="create a book (with tags)")
     help_msg = "Name of the new book"
     parser_create.add_argument("-b", "--book", required=True, help=help_msg)
-    help_msg = "A list of tag of the new book, separated by comma."
+    help_msg = "A list of tag of the new book, separated by semicolon."
     parser_create.add_argument("-t", "--tags", default="", help=help_msg)
     parser_create.add_argument("--desc", default="Yant book.", \
                                help="Book description")
@@ -50,11 +50,13 @@ def parse(args):
     find_dest = parser_find.add_mutually_exclusive_group(required=False)
     find_dest.add_argument("-b", "--book", help="book name")
     find_dest.add_argument("-t", "--tag", default="all", help="tag name")
+    parser_find.add_argument("--exec", help="Command executed on each note title")
 
     parser_review = subparsers.add_parser("review", help="randomly review notes")
     review_dest = parser_review.add_mutually_exclusive_group(required=True)
     review_dest.add_argument("-b", "--book", help="book name")
     review_dest.add_argument("-t", "--tag", help="tag name")
+    parser_review.add_argument("--exec", help="Command executed on each note title")
 
     parser_fortune = subparsers.add_parser("fortune", help="fortune cookie")
     fortune_dest = parser_fortune.add_mutually_exclusive_group(required=False)

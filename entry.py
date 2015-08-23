@@ -1,5 +1,5 @@
 from colors import colors
-from utils import YantException
+from yant_utils import YantException
 import utils
 import subprocess
 colored = colors.colored
@@ -84,9 +84,18 @@ class Entry:
         '''first step of a three-step process'''
         print(colored(self.key, "green"))
    
-    def show_external_note(self):
+    def show_external_note(self, commands):
         '''show note from external sources'''
-        pass
+        if len(self.key.split()) > 1:
+            # key contains white space
+            param = '"' + self.key + '"'
+        else:
+            param = self.key
+
+        for cmd in commands:
+            listed_cmd = cmd.replace("{}", param).split()
+            print(colored("Executing " + listed_cmd[0], "r"))
+            subprocess.call(listed_cmd)
 
     def show_user_note(self):
         if self.note:
@@ -94,8 +103,8 @@ class Entry:
         else:
             utils.paged_print(["<No user note>"])
 
-    def show_note(self):
-        self.show_external_note()
+    def show_note(self, exec_cmd):
+        self.show_external_note(exec_cmd)
         self.show_user_note()
 
     def exec_cmd(self, cmd, parent_process_name="Process"):
@@ -119,12 +128,12 @@ class Entry:
         return True # note modified
 
     # return True if note modified, else False
-    def review(self):
+    def review(self, exec_cmd):
         print("Remember this note? ===========> ", end="")
         self.show_key()
         cmd = input("Press {} to see the notes => ".\
                     format(colored("Enter", "c"))) # just to continue
-        self.show_note()
+        self.show_note(exec_cmd)
         cmd = input(("Delete({0}), Update({1}), Quit({2}), or " + \
                      "Next(<{3}>)=> ").format(colored('d', 'y'), \
                      colored("u", "y"), colored('q', 'y'), \
@@ -134,38 +143,3 @@ class Entry:
     def __str__(self):
        s = '\n'.join([self.key] + self.note)
        return s + "\n"
-
-class wordEntry(Entry):
-   
-    #def show_hint(self):
-    #    '''print word and example sentences'''
-    #    print(colored(self.key, "green"))
-    #    if self.dump_note() != "":
-    #        hl_key = colored(self.key, "yellow")
-    #        print(self.dump_note().replace(self.key, hl_key))
-
-    def show_external_note(self):
-        '''show word explanation from sdcv and pronounce word with forvo'''
-        try:
-            PIPE = subprocess.PIPE
-            process = subprocess.Popen(["sdcv", self.key], \
-                                      stdin=PIPE, stdout=PIPE) 
-            sdcv_out_bytes, err = process.communicate()
-            sdcv_out = str(sdcv_out_bytes, encoding='utf-8')
-            if "Your choice[-1 to abort]:" not in sdcv_out and \
-               "Nothing similar to " not in sdcv_out:
-                utils.paged_print(sdcv_out.replace(self.key, \
-                                  colored(self.key, "g")).splitlines())                
-        except Exception as e:
-            print("sdcv not installed?")
-        
-        utils.SysCall(["forvo.py", self.key.replace(" ", "_")]) #pronouce the word
-    
-    #def cleanup(self, cmd):
-    #    super().cleanup(cmd)
-    #    if len(self.key) <= 4:
-    #        return
-    #    while "N" in cmd.upper() and " " not in self.key: # ignore phrases
-    #        recite = input("Type the word again for memorization: ")
-    #        if recite.strip().upper() == self.key.strip().upper():
-    #            break

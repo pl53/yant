@@ -23,3 +23,10 @@ def validate_name(pattern, name, exception_msg=""):
         if exception_msg == "":
             exception_msg = "'" + name + "' doesn't match required pattern " + pattern
         raise Exception(exception_msg) 
+
+class YantException(Exception):
+    def __init__(self, s):
+        self.value = s
+    def __str__(self):
+        return str(self.value)
+

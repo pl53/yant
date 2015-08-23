@@ -52,7 +52,7 @@ def main(argv):
             yant_obj.show_book_by_tag(args.tag)
 
     elif args.sub_command == "create":
-        tags = args.tags.split(',')
+        tags = args.tags.split(';')
         yant_obj.create_book(args.book, tags, args.desc)
         print("Book'" + colored(book, "b") + " created.")
 
@@ -75,7 +75,7 @@ def main(argv):
         yant_obj.remove_note(args.book, args.note)
 
     elif args.sub_command == "tag":
-        tags = args.tags.split(',')
+        tags = args.tags.split(';')
         if args.delete_tags:
             yant_obj.remove_tag(args.book, tags)
         else:
@@ -88,17 +88,25 @@ def main(argv):
         yant_obj.export_book(args.book, args.file)
 
     elif args.sub_command in ["find", "search"]:
+        exec_cmd = []
+        if args.exec:
+            exec_cmd = args.exec.split(";")
         if args.book:
-            yant_obj.find(args.keyword, args.book, "book", args.whole_word)
+            yant_obj.find(args.keyword, args.book, 
+                          "book", args.whole_word, exec_cmd)
         else:
             # if no -b/-t provided, use "-t all"
-            yant_obj.find(args.keyword, args.tag, "tag", args.whole_word)
+            yant_obj.find(args.keyword, args.tag, 
+                          "tag", args.whole_word, exe_cmd)
 
     elif args.sub_command == "review":
+        exec_cmd = []
+        if args.exec:
+            exec_cmd = args.exec.split(";")
         if args.tag:
-            yant_obj.review(args.tag, "tag")
+            yant_obj.review(args.tag, "tag", exec_cmd)
         else:
-            yant_obj.review(args.book, "book")
+            yant_obj.review(args.book, "book", exec_cmd)
 
     elif args.sub_command == "fortune":
         if args.tag:

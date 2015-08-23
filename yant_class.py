@@ -114,7 +114,7 @@ class Yant:
 
     def fetch_books(self, target, category):
         if category == "tag":
-            tags = target.split(",")
+            tags = target.split(";")
             for tag in tags:
                 self.use_tag(tag)
         elif category == "book":
@@ -123,7 +123,7 @@ class Yant:
             self.logger.error("Fetch books: unsupported category " + category)
             raise Exception("Internal error when fetching books.")
 
-    def find(self, keyword, target, category, whole_word):
+    def find(self, keyword, target, category, whole_word, exe_cmd):
         self.fetch_books(target, category)
         matched_entry_cnt, matched_book_cnt = 0, 0
         for b in self.opened_books:
@@ -137,12 +137,12 @@ class Yant:
                     print("BOOK:", colored(b, "y"), end=", ")
                     print("TITLE:", end=' ')
                     entry.show_key()
-                    entry.show_note()
+                    entry.show_note(exec_cmd)
         print("{0} matched record(s) found in {1} book(s).".format(\
               colored(str(matched_entry_cnt), "r"), \
               colored(str(matched_book_cnt), "r")))
         
-    def review(self, target, category):
+    def review(self, target, category, exec_cmd):
         self.fetch_books(target, category)   
         review_seq = []
         for b in self.opened_books:
@@ -155,7 +155,7 @@ class Yant:
         for b in review_seq:
             print("BOOK:", colored(b, "y"))
             try:
-                self.opened_books[b].review_one_note()
+                self.opened_books[b].review_one_note(exec_cmd)
             except KeyboardInterrupt:
                 break
 
