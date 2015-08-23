@@ -37,7 +37,7 @@ def main(argv):
             book = "scratchpad",\
             tags=["all"],\
             description="The default notebook used when a book is not specified")
-    logger.setLevel(logging.WARNING)
+    logger.setLevel(logging.INFO)
     '''
     if args.book:
         yant_utils.validate_name(valid_name_pattern, args.book)
@@ -46,52 +46,38 @@ def main(argv):
     '''    
    
     if args.sub_command in ["list", "lst", "show"]:
-        if args.use_tag:
-            tags = args.target.split(',')
-            matched_books = []
-            for t in tags:
-                matched_books = yant_obj.get_books_by_tag(t)
-            if matched_books == []:
-                print(colored("No book found for the tag(s).", "r"))
-            else:
-                max_name_len = max([len(b) for b in matched_books])
-                listed_per_line = 100 // (max_name_len+4)
-                adjusted_names = [b+" "*(max_name_len+4-len(b)) for b in matched_books]
-                print("Books with tag(s) '" + colored(args.target, "m") + "':")
-                while adjusted_names != []:
-                    line = "".join(adjusted_names[:listed_per_line])
-                    adjusted_names = adjusted_names[listed_per_line:]
-                    print(colored(line, "y"))
-        else: # show details of the specified book 
-            if yant_obj.exist_book(args.target):
-                yant_obj.use_book(args.target)
-                yant_obj.get_book_obj(args.target).show_detail()
-            else:
-                print(colored(args.target + " doesn't exist.", "r"))
+        if args.book: # show details of the specified book 
+            yant_obj.show_book_by_name(args.book)
+        else:
+            yant_obj.show_book_by_tag(args.tag)
 
     elif args.sub_command == "create":
-        if yant_obj.exist_book(args.args.book):
-            logger.warning("Notebook "+ args.book + " exists. ")
-            logger.warning("No new notebook created.")
-        else:
-            desc = input("Enter a short description for the book: ")
-            tags = args.tags.split(',')
-            yant_obj.create_book(args.book, tags, desc)
-        return
+        tags = args.tags.split(',')
+        yant_obj.create_book(args.book, tags, args.desc)
+        print("Book'" + colored(book, "b") + " created.")
+
+    elif args.sub_command == "destroy":
+        print("Warning: your are deleting book '" + colored(book, "b") +\
+              "', which is unrecoverable!")
+        confirm = input("Are your sure? (Y/N): ")
+        if confirm in "Yy":
+            yant_obj.destroy_book(args.book)     
+        print("Book'" + colored(book, "b") + " deleted.")
 
     elif args.sub_command == "add":
         yant_obj.add_note(args.book, args.note)
+        print("Record added/updated to book '" + args.book + "'.")
 
     elif args.sub_command in ["update", "up"]:
         yant_obj.update_note(args.book, args.note)
 
-    elif args.sub_command in ["delete", "del", "rm"]:
-        yant_obj.delete_note(args.book, args.note)
+    elif args.sub_command in ["remove", "rm"]:
+        yant_obj.remove_note(args.book, args.note)
 
     elif args.sub_command == "tag":
         tags = args.tags.split(',')
         if args.delete_tags:
-            yant_obj.delete_tag(args.book, tags)
+            yant_obj.remove_tag(args.book, tags)
         else:
             yant_obj.add_tags(args.book, tags)
 
@@ -102,21 +88,23 @@ def main(argv):
         yant_obj.export_book(args.book, args.file)
 
     elif args.sub_command in ["find", "search"]:
-        if args.use_tag:
-            yant_obj.find(args.keyword, args.target, "tag")
+        if args.book:
+            yant_obj.find(args.keyword, args.book, "book", args.whole_word)
         else:
-            yant_obj.find(args.keyword, args.target, "book")
+            # if no -b/-t provided, use "-t all"
+            yant_obj.find(args.keyword, args.tag, "tag", args.whole_word)
+
     elif args.sub_command == "review":
-        if args.use_tag:
-            yant_obj.review(args.target, "tag")
+        if args.tag:
+            yant_obj.review(args.tag, "tag")
         else:
-            yant_obj.review(args.target, "book")
+            yant_obj.review(args.book, "book")
 
     elif args.sub_command == "fortune":
-        if args.use_tag:
-            yant_obj.fortune(args.target, "tag")
+        if args.tag:
+            yant_obj.fortune(args.tag, "tag")
         else:
-            yant_obj.fortune(args.target, "book")
+            yant_obj.fortune(args.book, "book")
 
 if __name__ == "__main__":
     try:

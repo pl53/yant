@@ -7,20 +7,24 @@ def parse(args):
     parser_create = subparsers.add_parser("create", help="create a book (with tags)")
     help_msg = "Name of the new book"
     parser_create.add_argument("-b", "--book", required=True, help=help_msg)
-    help_msg = "A list of tag of the new book, separated by comma"
+    help_msg = "A list of tag of the new book, separated by comma."
     parser_create.add_argument("-t", "--tags", default="", help=help_msg)
+    parser_create.add_argument("--desc", default="Yant book.", \
+                               help="Book description")
+
+    parser_destroy = subparsers.add_parser("destroy", help="destroy a book")
+    help_msg = "Name of the book"
+    parser_destroy.add_argument("-b", "--book", required=True, help=help_msg)
 
     parser_add = subparsers.add_parser("add", help="Add a new note or command to book")
     parser_add.add_argument("note", metavar="note", help="title of the new note")
     parser_add.add_argument("-b", "--book", default="scratchpad", help="book name")
-    parser_add.add_argument("-c", "--cmd", metavar="command",
-                           help="command to be added (not implemented yet)")
                              
-    parser_del = subparsers.add_parser("delete", aliases=["del", "rm"], \
-                           help="delete note, tags or command from book")
-    parser_del.add_argument("-b", "--book", default="scratchpad", help="book name")
-    parser_del.add_argument("note", help="title of the new note")
-    parser_del.add_argument("-c", "--cmd", metavar="command", help="command to be deleted")
+    parser_rm = subparsers.add_parser("remove", aliases=["rm"], \
+                           help="remove note from book")
+    parser_rm.add_argument("-b", "--book", default="scratchpad", help="book name")
+    parser_rm.add_argument("note", help="title of the new note")
+    #parser_rm.add_argument("-c", "--cmd", metavar="command", help="command to be deleted")
 
     parser_up = subparsers.add_parser("update", aliases=["up"], \
                            help="update note, tags or command to book")
@@ -35,25 +39,27 @@ def parse(args):
 
     parser_show = subparsers.add_parser("list", aliases=["lst", "show"],
                                         help="list books by name or tags")
-    help_msg = "list by book name if True, otherwise list by tag names"
-    parser_show.add_argument("-b", dest="use_tag", action="store_false", help=help_msg)
-    parser_show.add_argument("target", nargs="?", default="all", help="name(s) of the book of tags")
+    show_dest = parser_show.add_mutually_exclusive_group(required=False)
+    show_dest.add_argument("-b", "--book", help="book name")
+    show_dest.add_argument("-t", "--tag", default="all", help="tag name")
     
     parser_find = subparsers.add_parser("find", aliases=["search"], help="find keywords in books")
+    help_msg = "Select only those notes containing matches the whole word"
+    parser_find.add_argument("-w", dest="whole_word", action="store_true", help=help_msg)
     parser_find.add_argument("keyword", help="keyword for search, support wild character")
-    help_msg = "find by book name if True, otherwise find by tag names"
-    parser_find.add_argument("-b", dest="use_tag", action="store_false", help=help_msg)
-    parser_find.add_argument("target", nargs="?", default="all", help="name(s) of the book of tags")
+    find_dest = parser_find.add_mutually_exclusive_group(required=False)
+    find_dest.add_argument("-b", "--book", help="book name")
+    find_dest.add_argument("-t", "--tag", default="all", help="tag name")
 
     parser_review = subparsers.add_parser("review", help="randomly review notes")
-    help_msg = "review by book name if True, otherwise review by tag names"
-    parser_review.add_argument("-b", dest="use_tag", action="store_false", help=help_msg)
-    parser_review.add_argument("target", nargs="?", default="all", help="name(s) of the book of tags")
+    review_dest = parser_review.add_mutually_exclusive_group(required=True)
+    review_dest.add_argument("-b", "--book", help="book name")
+    review_dest.add_argument("-t", "--tag", help="tag name")
 
     parser_fortune = subparsers.add_parser("fortune", help="fortune cookie")
-    help_msg = "fortune by book name if True, otherwise fortune by tag names"
-    parser_fortune.add_argument("-b", dest="use_tag", action="store_false", help=help_msg)
-    parser_fortune.add_argument("target", nargs="?", default="all", help="name(s) of the book of tags")
+    fortune_dest = parser_fortune.add_mutually_exclusive_group(required=False)
+    fortune_dest.add_argument("-b", "--book", help="book name")
+    fortune_dest.add_argument("-t", "--tag", help="tag name")
 
     parser_import = subparsers.add_parser("import", help="import notes from file")
     parser_import.add_argument("-b", "--book", required=True, help="book name")

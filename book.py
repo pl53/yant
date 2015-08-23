@@ -30,22 +30,20 @@ class Notebook:
                  "Reserved property 2", \
                  "Note entries"]
 
-    def __init__(self, book_name, note_class):
-        self.book_name = book_name
+    def __init__(self, name, note_class):
+        self.name = name
         self.note_class = note_class
         self.data = {}
-        self.data_file = os.path.join(get_data_path(), book_name+".db")
+        self.data_file = os.path.join(get_data_path(), name+".db")
         self.logger = logging.getLogger("Book")
         self.is_data_loaded = False
 
-    def create_book(self, tags=[], desc="No description"):
-        if "all" not in tags: # the default tag that every book must have
-            tags.append("all")
+    def create(self, tags=[], description="Yant book"):
         data = {}
         current_time = time.ctime()
-        data["name"] = self.book_name
+        data["name"] = self.name
         data["tags"] = tags
-        data["desc"] = desc
+        data["desc"] = description
         data["ctime"] = current_time # create time
         data["mtime"] = current_time # modifited time
         data["reserved_property_1"] = None
@@ -55,21 +53,25 @@ class Notebook:
         with open(self.data_file, "wb") as fp:
             pickle.dump(data, fp)
 
-    def load_book(self):
+    def destroy(self):
+        self.logger.info("Delete book " + self.name + ".")
+        subprocess.call(["rm", "-f", self.data_file])
+
+    def load(self):
         if self.is_data_loaded:
             return
         with open(self.data_file, "rb") as fp:
             self.data = pickle.load(fp)
         self.is_data_loaded = True
 
-    def save_book(self):
+    def save(self):
         if not self.is_data_loaded:
             raise Exception("Cannot save book: data not loaded.")
         with open(self.data_file, "wb") as fp:
             pickle.dump(self.data, fp)
 
     def show_detail(self):
-        self.load_book()
+        self.load()
         print("Name:", self.data["name"])
         print("Tags:", ", ".join(self.data["tags"]))
         print("Description:", self.data["desc"]) 
@@ -80,10 +82,10 @@ class Notebook:
         print("Total notes:", len(self.data["entries"]))
 
     def update_desc(self, desc):
-        self.load_book()
+        self.load()
         self.data["desc"] = desc
         self.update_mtime()
-        self.save_book()
+        self.save()
 
     '''Note related'''
     def get_note(self, key):
@@ -99,78 +101,82 @@ class Notebook:
     '''
     def add_note(self, note_obj):
         key = note_obj.key
-        self.load_book()
+        self.load()
         if key in self.data["entries"]:
             self.data["entries"][key].merge(note_obj)
         else:
             self.data["entries"][key] = note_obj
         self.update_mtime()
-        print("Record added/updated to book '" + self.book_name + "'.")
-        self.save_book()
+        self.save()
 
-    def update_note(self, raw_key):
+    def update_note(self, raw_key, feedback=True):
+        '''Set feedback to False for unittest'''
         key = raw_key.strip()
-        self.load_book()
+        self.load()
         if key in self.data["entries"]:
             rv = self.data["entries"][key].update()
             if rv == 0:
-                print("Updated user notes:") 
+                self.update_mtime()
+                self.save()
+        else:
+            print("Error: '{}' not in the book '{}'".format(key, self.name))
+            rv = 1
+        if feedback:
+            if rv == 0:
+                print("Updated note:")
                 self.data["entries"][key].show_note()
             else:
                 print("Note not updated.")
-            self.update_mtime()
-        else:
-            print("Error: '{}' not in the book '{}'".format(key, self.book_name))
-        self.save_book()
+        return rv
 
     def delete_note(self, raw_key):
         key = raw_key.strip()
-        self.load_book()
+        self.load()
         try:
             self.data["entries"].pop(key)
             self.update_mtime()
-            self.save_book()
-            print("Record deleted from book '" + self.book_name + "'.")
+            self.save()
+            print("Record deleted from book '" + self.name + "'.")
         except KeyError as e:
             print("Note with the title '" + key +  "' not found, skip.")
 
     def get_description(self):
-        self.load_book()
+        self.load()
         return self.data["desc"]
 
     def set_description(self, desc=None):
-        self.load_book()
+        self.load()
         return self.data["desc"]
 
     def get_note_count(self):
-        self.load_book()
+        self.load()
         return len(self.data["entries"])
 
     ''' tag related'''
     def add_tag(self, tag):    
         #new_tag = tag.strip()
         new_tag = tag
-        self.load_book()
+        self.load()
         if new_tag in self.data["tags"]:
             print("Tag {0} already exists.".format(new_tag))
         else:
             self.data["tags"].append(new_tag)
             print("Tag {0} added.".format(new_tag))
         self.update_mtime()
-        self.save_book()
+        self.save()
 
     def delete_tag(self, tag):
-        self.load_book()
+        self.load()
         try:
             self.data["tags"].remove(tag.lower())
             self.update_mtime()
-            print("Tag '{0}' deleted from book '{1}'.".format(tag, self.book_name))
+            print("Tag '{0}' deleted from book '{1}'.".format(tag, self.name))
         except ValueError:
-            print("Book '" + self.book_name + "' doesn't have tag '" +tag+"'.")
-        self.save_book()
+            print("Book '" + self.name + "' doesn't have tag '" +tag+"'.")
+        self.save()
 
     def get_tags(self):
-        self.load_book()
+        self.load()
         return self.data["tags"]
 
     ''' time related'''
@@ -181,11 +187,14 @@ class Notebook:
         except:
             print("Unable to update mtime. Book not loaded?")
 
-    def search_notes(self, pattern):
+    def search_notes(self, pattern, whole_word):
         pattern = pattern.strip()
+        if whole_word:
+            # match empty at the beginning and end of keyword
+            pattern = "\\b" + pattern + "\\b"
         result = []
         prog = re.compile(pattern, re.IGNORECASE)
-        self.load_book()
+        self.load()
         for e in self.data["entries"]:
             # 'search' instead of 'match' to find anywhere in string
             if prog.search(self.data["entries"][e].__str__()):
@@ -194,7 +203,7 @@ class Notebook:
 
     # review a given note
     def start_review(self):
-        self.load_book()
+        self.load()
         self.old_mtime = self.data["mtime"]
         self.__iter__()
         self.review_cnt = 0
@@ -216,12 +225,12 @@ class Notebook:
     def end_review(self):
         try:
             if self.data["mtime"] != self.old_mtime:
-                self.save_book()
+                self.save()
             if self.review_cnt != 0:
                 print(("{} of {} records in {} have been reviewed.").format(
                        colored(str(self.review_cnt), "r"),
                        colored(str(self.get_note_count()), "r"),
-                       colored(self.book_name, "r")))
+                       colored(self.name, "r")))
             return self.review_cnt
         except AttributeError as e:
             print(e, "forgot to call start_review before ending review?")
@@ -229,7 +238,7 @@ class Notebook:
     '''
     def random_review(self, random_indices=[]):
         review_cnt = 0 
-        with open_book(self.data_file, self.data):
+        with open(self.data_file, self.data):
             if random_indices == []: # review all entries
                 random_indices = list(range(len(self.data["entries"])))
                 random.shuffle(random_indices)
@@ -249,14 +258,14 @@ class Notebook:
                     raise
         return review_cnt
     '''
-    def export_book(self, raw_data_file):
+    def export(self, raw_data_file):
         dump_file = raw_data_file.strip()
         if raw_data_file == "-" or raw_data_file == "":
             fp = sys.stdout;
         else:
             print("Export the notebook to " + dump_file)
             fp = open(dump_file, "w")
-        self.load_book()
+        self.load()
         for idx, attr in enumerate(self.attr_keys):
             attr_desc = self.attr_desc[idx]
             if attr not in self.data or not self.data[attr]:
@@ -275,10 +284,10 @@ class Notebook:
                 fp.write(attr_desc + self.sdelim + self.data[attr])
                 fp.write("\n"+self.attr_delim)
 
-    def import_book(self, raw_data_file):
+    def import_(self, raw_data_file):
         src_file = raw_data_file.strip()
         print("import notebook from " + src_file)
-        self.load_book()
+        self.load()
         with open(src_file, "r") as fp:
             raw_book = fp.read().split(self.attr_delim)
         for attr in raw_book:
@@ -307,10 +316,10 @@ class Notebook:
                 self.data[attr] = attr_value.split(",")
             else:
                 self.data[attr] = attr_value 
-        self.save_book()
+        self.save()
 
     def fortune(self):
-        self.load_book()
+        self.load()
         key_list = list(self.data["entries"].keys())
         if key_list != []:
             random_key = random.choice(key_list)
@@ -320,13 +329,13 @@ class Notebook:
 
     '''
     def randomize_notes(self):
-        self.load_book()
+        self.load()
         random.shuffle(self.data["entries"])
         return self.data["entries"]
     '''
 
     def __iter__(self):
-        self.load_book()
+        self.load()
         self.index = -1
         self.keys = list(self.data["entries"].keys())
         random.shuffle(self.keys)
@@ -338,5 +347,5 @@ class Notebook:
             key = self.keys[self.index]
             return self.data["entries"][key]
         except IndexError as e:
-            self.save_book()
+            self.save()
             raise StopIteration

@@ -20,20 +20,30 @@ class Yant:
         return book in self.all_books
 
     # create book object and apply tags
-    def create_book(self, book, tags=[], description="No description"):
+    def create_book(self, book, tags=[], description="Yant book"):
+        # set need_description to false for unittest
+        self.logger.info("Create book " + book + \
+                         " with tags: " + ",".join(tags) + ".")
+
         if self.exist_book(book):
-            self.logger.warn("Book " + book + " already exists.")
+            print("Book " + colored(book, "b") + " already exists.")
         else:
-            new_book_obj = Notebook(book, self.note_class)
             if "all" not in tags: # default tag for all books
                 tags.append("all")
-            new_book_obj.create_book(tags, description)
+            new_book_obj = Notebook(book, self.note_class)
+            new_book_obj.create(tags, description)
             for tag in tags:
                 self.tag_manager.tag_book(tag, book)
 
+    def destroy_book(self, book):
+        self.use_book(book)
+        for tag in self.opened_books[book].get_tags():
+            self.tag_manager.untag_book(tag, book)
+        self.get_book_obj(book).destroy()
+
     def use_book(self, book):
         if not self.exist_book(book):
-            raise Exception("No data for book '{}' found.".format(book))
+            raise Exception("Book " + colored(book, "b") + " doesn't exist.")
         self.opened_books[book] = Notebook(book, self.note_class) 
 
     def use_tag(self, tag):
@@ -44,6 +54,24 @@ class Yant:
                 self.logger.warn("No data for book '{}' found.".format(b))
             else:
                 self.opened_books[b] = Notebook(b, self.note_class)
+
+    def show_book_by_name(self, book):
+        self.use_book(book)
+        self.get_book_obj(book).show_detail()
+
+    def show_book_by_tag(self, tag):
+        matched_books = self.get_books_by_tag(tag)
+        if matched_books == []:
+            print(colored("No book found for the tag(s).", "r"))
+        else:
+            max_name_len = max([len(b) for b in matched_books])
+            listed_per_line = 100 // (max_name_len+4)
+            adjusted_names = [b+" "*(max_name_len+4-len(b)) for b in matched_books]
+            print("Books with tag '" + colored(tag, "m") + "':")
+            while adjusted_names != []:
+                line = "".join(adjusted_names[:listed_per_line])
+                adjusted_names = adjusted_names[listed_per_line:]
+                print(colored(line, "b"))
 
     def add_note(self, book, note_title):
         self.use_book(book)
@@ -60,11 +88,11 @@ class Yant:
         self.use_book(book)
         self.opened_books[book].update_note(note_title)
 
-    def delete_note(self, book, note_title):
+    def remove_note(self, book, note_title):
         self.use_book(book)
         self.opened_books[book].delete_note(note_title)
 
-    def delete_tag(self, book, tags):
+    def remove_tag(self, book, tags):
         self.use_book(book)
         for tag in tags:
             self.opened_books[book].delete_tag(tag)
@@ -78,11 +106,11 @@ class Yant:
 
     def import_book(self, book, source):
         self.use_book(book)
-        self.opened_books[book].import_book(source)
+        self.opened_books[book].import_(source)
 
     def export_book(self, book, source):
         self.use_book(book)
-        self.opened_books[book].export_book(source)
+        self.opened_books[book].export(source)
 
     def fetch_books(self, target, category):
         if category == "tag":
@@ -92,14 +120,15 @@ class Yant:
         elif category == "book":
             self.use_book(target)
         else:
-            raise Exception("Fetch books: unsupported category " + category)
+            self.logger.error("Fetch books: unsupported category " + category)
+            raise Exception("Internal error when fetching books.")
 
-    def find(self, keyword, target, category):
+    def find(self, keyword, target, category, whole_word):
         self.fetch_books(target, category)
         matched_entry_cnt, matched_book_cnt = 0, 0
         for b in self.opened_books:
             bo = self.opened_books[b]
-            matches = bo.search_notes(keyword)
+            matches = bo.search_notes(keyword, whole_word)
             if matches != []:
                 matched_book_cnt += 1
                 for k,entry in enumerate(matches):
