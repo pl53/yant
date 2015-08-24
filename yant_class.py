@@ -123,7 +123,7 @@ class Yant:
             self.logger.error("Fetch books: unsupported category " + category)
             raise Exception("Internal error when fetching books.")
 
-    def find(self, keyword, target, category, whole_word, exe_cmd):
+    def find(self, keyword, target, category, whole_word, exec_cmd):
         self.fetch_books(target, category)
         matched_entry_cnt, matched_book_cnt = 0, 0
         for b in self.opened_books:

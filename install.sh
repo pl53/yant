@@ -6,5 +6,5 @@ if [ ! -d "$SRC_DIR" ]; then
 fi
 cp ./*.py $SRC_DIR 
 cp ./yant $BIN_DIR
-chmod a+x $SRC_DIR/yant.py
-chmod a+x $BIN_DIR/yant
+chmod 755 $SRC_DIR/*.py
+chmod 755 $BIN_DIR/yant

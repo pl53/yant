@@ -97,7 +97,7 @@ def main(argv):
         else:
             # if no -b/-t provided, use "-t all"
             yant_obj.find(args.keyword, args.tag, 
-                          "tag", args.whole_word, exe_cmd)
+                          "tag", args.whole_word, exec_cmd)
 
     elif args.sub_command == "review":
         exec_cmd = []
@@ -115,7 +115,8 @@ def main(argv):
             yant_obj.fortune(args.book, "book")
 
 if __name__ == "__main__":
-    try:
-        main(sys.argv)
-    except Exception as e:
-        print("Error:", e)
+    main(sys.argv)
+    #try:
+    #    main(sys.argv)
+    #except Exception as e:
+    #    print("Error:", e)
