@@ -3,7 +3,7 @@
 * (done) notebook meta info: name, desc, time(?), tags
 * star (*) in notes
 * ctrl+c quit, save notes
+* add index for each node, so that user can remove note.
+* @index
 
 BUGS
-* import time
-* replace match with search

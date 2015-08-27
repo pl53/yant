@@ -86,6 +86,9 @@ class Entry:
    
     def show_external_note(self, commands):
         '''show note from external sources'''
+        if commands == []:
+            return
+
         if len(self.key.split()) > 1:
             # key contains white space
             param = '"' + self.key + '"'
@@ -103,7 +106,7 @@ class Entry:
         else:
             utils.paged_print(["<No user note>"])
 
-    def show_note(self, exec_cmd):
+    def show_note(self, exec_cmd=[]):
         self.show_external_note(exec_cmd)
         self.show_user_note()
 
