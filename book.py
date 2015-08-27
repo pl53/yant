@@ -208,7 +208,7 @@ class Notebook:
         self.__iter__()
         self.review_cnt = 0
 
-    def review_one_note(self, exec_cmd):
+    def review_one_note(self, exec_cmd=[]):
         try:
             self.review_cnt += 1
             note = self.__next__()

@@ -106,8 +106,8 @@ class Entry:
         else:
             utils.paged_print(["<No user note>"])
 
-    def show_note(self, exec_cmd=[]):
-        self.show_external_note(exec_cmd)
+    def show_note(self, external_note_cmd=[]):
+        self.show_external_note(external_note_cmd)
         self.show_user_note()
 
     def exec_cmd(self, cmd, parent_process_name="Process"):
@@ -131,12 +131,12 @@ class Entry:
         return True # note modified
 
     # return True if note modified, else False
-    def review(self, exec_cmd):
+    def review(self, external_note_cmd=[]):
         print("Remember this note? ===========> ", end="")
         self.show_key()
         cmd = input("Press {} to see the notes => ".\
                     format(colored("Enter", "c"))) # just to continue
-        self.show_note(exec_cmd)
+        self.show_note(external_note_cmd)
         cmd = input(("Delete({0}), Update({1}), Quit({2}), or " + \
                      "Next(<{3}>)=> ").format(colored('d', 'y'), \
                      colored("u", "y"), colored('q', 'y'), \
