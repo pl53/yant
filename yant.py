@@ -54,7 +54,7 @@ def main(argv):
     elif args.sub_command == "create":
         tags = args.tags.split(';')
         yant_obj.create_book(args.book, tags, args.desc)
-        print("Book'" + colored(book, "b") + " created.")
+        print("Book" + colored(args.book, "b") + " created.")
 
     elif args.sub_command == "destroy":
         print("Warning: your are deleting book '" + colored(book, "b") +\

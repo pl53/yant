@@ -26,7 +26,7 @@ class Yant:
                          " with tags: " + ",".join(tags) + ".")
 
         if self.exist_book(book):
-            print("Book " + colored(book, "b") + " already exists.")
+            raise Exception("Book '" + book + "' already exists.")
         else:
             if "all" not in tags: # default tag for all books
                 tags.append("all")
