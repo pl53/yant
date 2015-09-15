@@ -8,7 +8,7 @@ import argparse
 import operator
 from itertools import accumulate
 
-from entry import Entry
+from flashcard import Flashcard
 import book
 import yant_args
 import utils
@@ -30,7 +30,7 @@ def main(argv):
 
     valid_name_pattern =  "^[a-zA-Z][a-zA-Z0-9_-]*$"
 
-    yant_obj = Yant(Entry)
+    yant_obj = Yant(Flashcard)
     logger.setLevel(logging.ERROR)
     if not yant_obj.exist_book("scratchpad"):
         yant_obj.create_book(
@@ -52,27 +52,34 @@ def main(argv):
             yant_obj.show_book_by_tag(args.tag)
 
     elif args.sub_command == "create":
-        tags = args.tags.split(';')
+        if args.tags != '':
+            tags = args.tags.split(';')
+        else:
+            tags = []
         yant_obj.create_book(args.book, tags, args.desc)
-        print("Book" + colored(args.book, "b") + " created.")
+        print("Book " + colored(args.book, "b") + " created.")
 
     elif args.sub_command == "destroy":
-        print("Warning: your are deleting book '" + colored(book, "b") +\
+        print("Warning: your are deleting book '" + colored(args.book, "b") +\
               "', which is unrecoverable!")
         confirm = input("Are your sure? (Y/N): ")
         if confirm in "Yy":
             yant_obj.destroy_book(args.book)     
-        print("Book'" + colored(book, "b") + " deleted.")
+        print("Book '" + colored(args.book, "b") + " deleted.")
 
     elif args.sub_command == "add":
-        yant_obj.add_note(args.book, args.note)
-        print("Record added/updated to book '" + args.book + "'.")
+        yant_obj.add_flashcard(args.book, args.title)
+        print("Flashcard added/updated to book '" + args.book + "'.")
+
+    elif args.sub_command == "append":
+        yant_obj.append_flashcard(args.book, args.title)
+        print("Flashcard appended.")
 
     elif args.sub_command in ["update", "up"]:
-        yant_obj.update_note(args.book, args.note)
+        yant_obj.update_flashcard(args.book, args.title)
 
-    elif args.sub_command in ["remove", "rm"]:
-        yant_obj.remove_note(args.book, args.note)
+    elif args.sub_command in ["remove", "rm", "delete", "del"]:
+        yant_obj.remove_flashcard(args.book, args.title)
 
     elif args.sub_command == "tag":
         tags = args.tags.split(';')
@@ -109,10 +116,10 @@ def main(argv):
             yant_obj.review(args.book, "book", exec_cmd)
 
     elif args.sub_command == "fortune":
-        if args.tag:
-            yant_obj.fortune(args.tag, "tag")
-        else:
+        if args.book:
             yant_obj.fortune(args.book, "book")
+        else:
+            yant_obj.fortune(args.tag, "tag")
 
 if __name__ == "__main__":
     try:

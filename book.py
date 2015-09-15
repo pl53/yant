@@ -7,7 +7,6 @@ import subprocess
 import random
 import logging
 
-import entry
 from yant_utils import get_data_path
 from colors import colors
 colored = colors.colored
@@ -28,11 +27,11 @@ class Notebook:
                  "Last updated time", \
                  "Reserved property 1", \
                  "Reserved property 2", \
-                 "Note entries"]
+                 "Note flashcards"]
 
-    def __init__(self, name, note_class):
+    def __init__(self, name, flashcard_class):
         self.name = name
-        self.note_class = note_class
+        self.flashcard_class = flashcard_class
         self.data = {}
         self.data_file = os.path.join(get_data_path(), name+".db")
         self.logger = logging.getLogger("Book")
@@ -41,13 +40,13 @@ class Notebook:
     def create(self, tags=[], description="Yant book"):
         data = {}
         current_time = time.ctime()
+        #data["version"] = current_data_version #TODO: add config value
         data["name"] = self.name
         data["tags"] = tags
         data["desc"] = description
         data["ctime"] = current_time # create time
         data["mtime"] = current_time # modifited time
-        data["reserved_property_1"] = None
-        data["reserved_property_2"] = None
+        # this reserved property is used to generate index for each flashcard
         data["entries"] = {}
 
         with open(self.data_file, "wb") as fp:
@@ -57,11 +56,19 @@ class Notebook:
         self.logger.info("Delete book " + self.name + ".")
         subprocess.call(["rm", "-f", self.data_file])
 
+    #TODO: create a temp file to indicate that data is been loaded
     def load(self):
+        # the program is single-threaded, so no lock needed here
         if self.is_data_loaded:
             return
+
         with open(self.data_file, "rb") as fp:
             self.data = pickle.load(fp)
+
+        # for back compatibility, previous notebooks might not use flashcard index
+        #if 'version' not in self.data or self.data['version'] < current_data_version:
+        #    self.data['version'] = current_data_version
+
         self.is_data_loaded = True
 
     def save(self):
@@ -69,6 +76,9 @@ class Notebook:
             raise Exception("Cannot save book: data not loaded.")
         with open(self.data_file, "wb") as fp:
             pickle.dump(self.data, fp)
+
+        #self.is_data_loaded = False
+        
 
     def show_detail(self):
         self.load()
@@ -79,7 +89,7 @@ class Notebook:
         print("Last Update:", self.data["mtime"]) 
         #print("Other info.:", self.data["reserved_property_1"])
         #print("Other info.:", self.data["reserved_property_2"])
-        print("Total notes:", len(self.data["entries"]))
+        print("Total flashcards:", len(self.data["entries"]))
 
     def update_desc(self, desc):
         self.load()
@@ -87,29 +97,30 @@ class Notebook:
         self.update_mtime()
         self.save()
 
-    '''Note related'''
-    def get_note(self, key):
+    '''flashcard related'''
+    def get_flashcard(self, key):
         return self.data["entries"].get(key, None)
 
-    def get_note_count(self):
+    def get_flashcard_count(self):
         return len(self.data["entries"])
             
-    #TODO
-    ''' Update the notebook with given note object
+    ''' Update the notebook with given flashcard object
         Do a merge if title already in the book, otherwise do an add
-    @note_obj: note object
+
+    @flashcard_obj flashcard object
+    @return None
     '''
-    def add_note(self, note_obj):
-        key = note_obj.key
+    def add_flashcard(self, flashcard_obj):
+        key = flashcard_obj.key
         self.load()
         if key in self.data["entries"]:
-            self.data["entries"][key].merge(note_obj)
+            self.data["entries"][key].merge(flashcard_obj)
         else:
-            self.data["entries"][key] = note_obj
+            self.data["entries"][key] = flashcard_obj
         self.update_mtime()
         self.save()
 
-    def update_note(self, raw_key, feedback=True):
+    def update_flashcard(self, raw_key, feedback=True):
         '''Set feedback to False for unittest'''
         key = raw_key.strip()
         self.load()
@@ -123,13 +134,13 @@ class Notebook:
             rv = 1
         if feedback:
             if rv == 0:
-                print("Updated note:")
+                print("Updated flashcard:")
                 self.data["entries"][key].show_note()
             else:
-                print("Note not updated.")
+                print("flashcard not updated.")
         return rv
 
-    def delete_note(self, raw_key):
+    def delete_flashcard(self, raw_key):
         key = raw_key.strip()
         self.load()
         try:
@@ -138,7 +149,7 @@ class Notebook:
             self.save()
             print("Record deleted from book '" + self.name + "'.")
         except KeyError as e:
-            print("Note with the title '" + key +  "' not found, skip.")
+            print("flashcard with the title '" + key +  "' not found, skip.")
 
     def get_description(self):
         self.load()
@@ -148,7 +159,7 @@ class Notebook:
         self.load()
         return self.data["desc"]
 
-    def get_note_count(self):
+    def get_flashcard_count(self):
         self.load()
         return len(self.data["entries"])
 
@@ -187,7 +198,7 @@ class Notebook:
         except:
             print("Unable to update mtime. Book not loaded?")
 
-    def search_notes(self, pattern, whole_word):
+    def search_flashcards(self, pattern, whole_word):
         pattern = pattern.strip()
         if whole_word:
             # match empty at the beginning and end of keyword
@@ -201,26 +212,26 @@ class Notebook:
                 result.append(self.data["entries"][e])
         return result
 
-    # review a given note
+    # review a given flashcard
     def start_review(self):
         self.load()
         self.old_mtime = self.data["mtime"]
         self.__iter__()
         self.review_cnt = 0
 
-    def review_one_note(self, exec_cmd=[]):
+    def review_one_flashcard(self, exec_cmd=[]):
         try:
             self.review_cnt += 1
-            note = self.__next__()
-            note_changed = note.review(exec_cmd)
-            if note_changed:
+            flashcard = self.__next__()
+            flashcard_changed = flashcard.review(exec_cmd)
+            if flashcard_changed:
                 self.data["mtime"] = time.ctime()
-            if note.can_delete():
-                self.data["entries"].pop(note.get_key(), None)
+            if flashcard.can_delete():
+                self.data["entries"].pop(flashcard.get_key(), None)
         except AttributeError as e:
             print(e, "forgot to call start_review before reviewing?")
         except StopIteration as e:
-            print("Error: no more note for review.")
+            print("Error: no more flashcard for review.")
 
     def end_review(self):
         try:
@@ -229,7 +240,7 @@ class Notebook:
             if self.review_cnt != 0:
                 print(("{} of {} records in {} have been reviewed.").format(
                        colored(str(self.review_cnt), "r"),
-                       colored(str(self.get_note_count()), "r"),
+                       colored(str(self.get_flashcard_count()), "r"),
                        colored(self.name, "r")))
             return self.review_cnt
         except AttributeError as e:
@@ -239,7 +250,7 @@ class Notebook:
     def random_review(self, random_indices=[]):
         review_cnt = 0 
         with open(self.data_file, self.data):
-            if random_indices == []: # review all entries
+            if random_indices == []: # review all flashcards
                 random_indices = list(range(len(self.data["entries"])))
                 random.shuffle(random_indices)
             keys = list(self.data["entries"].keys())
@@ -272,7 +283,7 @@ class Notebook:
                 #print("Warning:", "no", attr_desc, "in notebook.")
                 continue
             if attr == "entries":
-                fp.write(attr_desc + ": " + "see all entries below\n")
+                fp.write(attr_desc + ": " + "see all flashcards below\n")
                 fp.write(self.note_delim)
                 for e in self.data[attr]:
                     fp.write(str(self.data[attr][e]))
@@ -302,14 +313,14 @@ class Notebook:
                 if attr not in self.data:
                     self.data[attr] = {}
                 try:
-                    raw_notes = attr_lines[1:]
-                    for note_str in raw_notes:
-                         if note_str == '':
+                    raw_flashcards = attr_lines[1:]
+                    for flashcard_str in raw_flashcards:
+                         if flashcard_str == '':
                              continue
-                         note = note_str.strip().split('\n')
-                         new_note = self.note_class(note[0], note[1:])
-                         # note[0] is key
-                         self.data["entries"][note[0]] = new_note 
+                         flashcard = flashcard_str.strip().split('\n')
+                         new_flashcard = self.flashcard_class(flashcard[0], flashcard[1:])
+                         # flashcard[0] is key
+                         self.data["entries"][flashcard[0]] = new_flashcard 
                 except:
                     sys.stderr.write("Error during importing process.\n")
             elif attr == "tags":
@@ -328,7 +339,7 @@ class Notebook:
             return None
 
     '''
-    def randomize_notes(self):
+    def randomize_flashcards(self):
         self.load()
         random.shuffle(self.data["entries"])
         return self.data["entries"]

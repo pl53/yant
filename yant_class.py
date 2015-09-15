@@ -2,16 +2,16 @@ import random
 import logging
 
 from yant_utils import list_all_books
-from entry import Entry
+from flashcard import Flashcard
 from book import Notebook
 from tag import TagManager
 from colors import colors
 colored = colors.colored
 
 class Yant:
-    def __init__(self, note_class):
+    def __init__(self, flashcard_class):
         self.tag_manager = TagManager()
-        self.note_class = note_class
+        self.flashcard_class = flashcard_class
         self.all_books = list_all_books()
         self.opened_books = {}
         self.logger = logging.getLogger("Yant")
@@ -30,7 +30,7 @@ class Yant:
         else:
             if "all" not in tags: # default tag for all books
                 tags.append("all")
-            new_book_obj = Notebook(book, self.note_class)
+            new_book_obj = Notebook(book, self.flashcard_class)
             new_book_obj.create(tags, description)
             for tag in tags:
                 self.tag_manager.tag_book(tag, book)
@@ -44,7 +44,7 @@ class Yant:
     def use_book(self, book):
         if not self.exist_book(book):
             raise Exception("Book " + colored(book, "b") + " doesn't exist.")
-        self.opened_books[book] = Notebook(book, self.note_class) 
+        self.opened_books[book] = Notebook(book, self.flashcard_class) 
 
     def use_tag(self, tag):
         books = self.tag_manager.get_books(tag)
@@ -53,7 +53,7 @@ class Yant:
                 # if a booking is missing here, it should be a warning
                 self.logger.warn("No data for book '{}' found.".format(b))
             else:
-                self.opened_books[b] = Notebook(b, self.note_class)
+                self.opened_books[b] = Notebook(b, self.flashcard_class)
 
     def show_book_by_name(self, book):
         self.use_book(book)
@@ -73,10 +73,21 @@ class Yant:
                 adjusted_names = adjusted_names[listed_per_line:]
                 print(colored(line, "b"))
 
-    def add_note(self, book, note_title):
+    def add_flashcard(self, book, flashcard_title):
         self.use_book(book)
-        note_obj = Entry(note_title, ask_user_input=True)
-        self.opened_books[book].add_note(note_obj)
+        flashcard_obj = Flashcard(flashcard_title, ask_user_input=True)
+        self.opened_books[book].add_flashcard(flashcard_obj)
+
+    def append_flashcard(self, book, flashcard_title, raw_notes, use_hashkey):
+        '''
+        self.use_book(book)
+        note_list = raw_notes.split('&&')
+        if use_hashkey:
+            self.opened_books[book].append_flashcard_by_hashkey(flashcard_title, note_list)
+        else:
+            self.opened_books[book].append_flashcard_by_title(flashcard_title, note_list)
+        '''
+        print("Sorry, this feature hasn't been implemented. Please use 'add' or 'update' instead")
 
     def add_tags(self, book, tags):
         self.use_book(book)
@@ -84,13 +95,13 @@ class Yant:
             self.opened_books[book].add_tag(tag)
             self.tag_manager.tag_book(tag, book)
 
-    def update_note(self, book, note_title):
+    def update_flashcard(self, book, flashcard_title):
         self.use_book(book)
-        self.opened_books[book].update_note(note_title)
+        self.opened_books[book].update_flashcard(flashcard_title)
 
-    def remove_note(self, book, note_title):
+    def remove_flashcard(self, book, flashcard_title):
         self.use_book(book)
-        self.opened_books[book].delete_note(note_title)
+        self.opened_books[book].delete_flashcard(flashcard_title)
 
     def remove_tag(self, book, tags):
         self.use_book(book)
@@ -125,21 +136,21 @@ class Yant:
 
     def find(self, keyword, target, category, whole_word, exec_cmd):
         self.fetch_books(target, category)
-        matched_entry_cnt, matched_book_cnt = 0, 0
+        matched_flashcard_cnt, matched_book_cnt = 0, 0
         for b in self.opened_books:
             bo = self.opened_books[b]
-            matches = bo.search_notes(keyword, whole_word)
+            matches = bo.search_flashcards(keyword, whole_word)
             if matches != []:
                 matched_book_cnt += 1
-                for k,entry in enumerate(matches):
-                    matched_entry_cnt += 1
-                    print("==Match #" + str(matched_entry_cnt) + "==")
+                for k,flashcard in enumerate(matches):
+                    matched_flashcard_cnt += 1
+                    print("==Match #" + str(matched_flashcard_cnt) + "==")
                     print("BOOK:", colored(b, "y"), end=", ")
                     print("TITLE:", end=' ')
-                    entry.show_key()
-                    entry.show_note(exec_cmd)
+                    flashcard.show_key()
+                    flashcard.show_note(exec_cmd)
         print("{0} matched record(s) found in {1} book(s).".format(\
-              colored(str(matched_entry_cnt), "r"), \
+              colored(str(matched_flashcard_cnt), "r"), \
               colored(str(matched_book_cnt), "r")))
         
     def review(self, target, category, exec_cmd):
@@ -147,7 +158,7 @@ class Yant:
         review_seq = []
         for b in self.opened_books:
             # reivew_seq will be ["book1", "book1", "book2", ...]
-            weight = self.opened_books[b].get_note_count()
+            weight = self.opened_books[b].get_flashcard_count()
             review_seq += [b] * weight
             self.opened_books[b].start_review()
 
@@ -155,7 +166,7 @@ class Yant:
         for b in review_seq:
             print("BOOK:", colored(b, "y"))
             try:
-                self.opened_books[b].review_one_note(exec_cmd)
+                self.opened_books[b].review_one_flashcard(exec_cmd)
             except KeyboardInterrupt:
                 break
 
@@ -166,10 +177,10 @@ class Yant:
         self.fetch_books(target, category)
         book_seq = [] 
         for b in self.opened_books:
-            book_seq += [b]*self.opened_books[b].get_note_count()
+            book_seq += [b]*self.opened_books[b].get_flashcard_count()
         random_book = random.choice(book_seq)
-        note = self.opened_books[random_book].fortune()
+        flashcard = self.opened_books[random_book].fortune()
         print("BOOK:", colored(random_book, "y"), end=", ")
         print("TITLE:", end=' ')
-        note.show_key()
-        note.show_note()
+        flashcard.show_key()
+        flashcard.show_note()
