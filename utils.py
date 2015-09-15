@@ -1,7 +1,8 @@
-from __future__ import print_function
 import subprocess
 import termios
 import sys
+from colors import colors
+colored = colors.colored
 
 def require_python_version(required):
     if sys.version_info.major < required:
@@ -65,16 +66,6 @@ def fstr(raw_str):
 
     return fm_str # in case of unmatched *
 
-''' print list items in 48 line per page fashion,
-    ask user to continue once output reaches page limit
-'''
-def paged_print(lines, line_limit=48):
-    while lines:
-        print('\n'.join(lines[:line_limit]))
-        lines = lines[line_limit:]
-        if lines and input("More? ") not in ['Y', 'y']:
-            break
-
 ''' update, append, or remove items in a list
 '''
 def update_list(lst, new_item_func, item_name="item"):
@@ -111,8 +102,10 @@ def update_list(lst, new_item_func, item_name="item"):
                 if op == 'a':
                     lst.append(new_item)
                 else:
+                    print("Replaced note: " + colored(lst[idx], 'r'))
                     lst[idx] = new_item
             else:
+                print("Deleted note: " + colored(lst[idx], 'r'))
                 del lst[idx]
         except (ValueError, IndexError) as e:
             print("Invalid update operation:", e, end='.\n')
