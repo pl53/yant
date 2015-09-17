@@ -66,6 +66,17 @@ def fstr(raw_str):
 
     return fm_str # in case of unmatched *
 
+''' print list items in 48 line per page fashion,
+    ask user to continue once output reaches page limit
+    Note: this is kept to be compatible with old data
+'''
+def paged_print(lines, line_limit=48):
+    while lines:
+        print('\n'.join(lines[:line_limit]))
+        lines = lines[line_limit:]
+        if lines and input("More? ") not in ['Y', 'y']:
+            break
+
 ''' update, append, or remove items in a list
 '''
 def update_list(lst, new_item_func, item_name="item"):
