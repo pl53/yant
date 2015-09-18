@@ -13,10 +13,12 @@ you can avoid just reviewing the first few notes again and again.
 
 Check it out and have fun with it!
 
+```
 git clone git@github.com:pl53/yant.git
 cd yant
 bash install.sh
 yant --help
+```
 
 Enjoy!
 
