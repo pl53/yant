@@ -1,72 +1,25 @@
-Yant: Yet Another Note-taking Tool (previously *Yanote*)
+Yant: Yet Another Note Tool (previously *Yanote*)
 
-*This README is out-of-dated. Please use "yant --help" for the latest usage.
-I will update this document when I have time.*
+Yant is a pure commandline note tool. It supports note operations such as *add*
+(of course!), *remove*, *update*, *search*, *review* (you will love this
+feature), *import*, *export*, *fortune*, etc. With Yant, you can quickly find
+your memory with one command. Moreover, you can do a two-step random review of
+your notes! Think that you have taken tons of notes while learning something
+new, and you want to fortify your new knowledge by reviewing notes from time to
+time. Yant can do this perfectly for you. For each note, it first pops a note
+title (e.g. a new word), then after your press <Enter>, more information shows
+up (e.g. meaning of the word). The reviewing process is *random*, which means
+you can avoid just reviewing the first few notes again and again.
 
-* Goal
-  - The primary goal of Yanote is storing information or knowledge as key-value
-  pairs for later queries or review. Note that entries in a notebook are
-  un-ordered.
+Check it out and have fun with it!
 
-* Feature
-  - support create, import, and export notebooks;
-  - support add, delete, update, and search note entries;
-  - support *random* review of entries in the same notebook;
-  - support building English vocabulary.
+git clone git@github.com:pl53/yant.git
+cd yant
+bash install.sh
+yant --help
 
-* Requirement
-  - Python 3
+Enjoy!
 
-* Installation 
-  - After downloading yanote.tar.gz
-  ```
-  $ tar -xzf yanote.tar.gz
-  $ cd yanote
-  $ sudo sh install.sh
-  ```
+(Note: require Python version >= 3. More Doc on the way.) 
 
-* Usage examples
-  - create a notebook named "magic": 
-```
-       $ yanote -c magic
-```
-  - add my bestbuy reward number ("1234"): 
-```
-       $ yanote magic -a "bestbuy reward" 
-       Add an entry for bestbuy reward: 1234
-       One record added/updated.
-```
-  - search my bestbuy reward number:
-```
-       $ yanote magic -s bestbuy
-       ==Match #1==
-       Key: bestbuy reward
-       #1: 1234
-```
-  For complete usage, see "yanote -h"
- 
-* Advanced features
-  - When adding an English word entry, use "-w" indicate it is a word, such as "yanote
-	wordbook -w -a some_new_word." so Yanote will call "sdcv" and "forvo" to
-    show the meaning and pronounce the word when showing it. "forvo" is a CLI client
-    for forvo.com written by myself.  You can download it from
-    https://github.com/pl53/forvo-linux-client
 
-  - By default, database files are stored in ~/.yanote. You change the database
-    directory (e.g. Dropbox folder) by setting the YANOTE_PATH env.
-
-For bugs and suggestions, please send emails to lipeng.net at gmail dot com.
-
-* Bugs
-  
-* TODO
-  - improve search, supprot wildcard, key-based search (done, re)
-  - improve fortune, choose according to probability (done)
-  - enrich notebook information (name, desc, exec, notes (key-value pair))
-    #  -e to change any of them
-  - add cmd execution to note (e.g. play sound, open a webpage)
-  - add option to modifying notebook
-  - add unit test
-  - add encryption option (low priority)
-  - reorder note values (low priority)
-  - merge two keys (low priority)
