@@ -73,7 +73,7 @@ def main(argv):
 
     elif args.sub_command == "append":
         yant_obj.append_flashcard(args.book, args.title)
-        print("Flashcard appended.")
+        print("Notes appended to flashcard.")
 
     elif args.sub_command in ["update", "up"]:
         yant_obj.update_flashcard(args.book, args.title)

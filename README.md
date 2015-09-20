@@ -51,7 +51,6 @@ Each notebook is a collection of **flashcards**, each of which consists of a
 
 ```
 yant add [-b BOOK] title
-
 ```
 Then yant will prompt you to input notes for this flashcard.
 
@@ -118,14 +117,14 @@ optional arguments:
 You can see all existing notebooks you have created, or all books associated
 with the same tag, or etails of a book. If neither "-b" nor "-t" is specified,
 all books are displayed.
-
-list -h
-usage: yant list [-h] [-b BOOK | -t TAG]
+```
+yant list [-h] [-b BOOK | -t TAG]
 
 optional arguments:
   -h, --help            show this help message and exit
   -b BOOK, --book BOOK  book name
   -t TAG, --tag TAG     tag name
+```
 
 ### Review flashcards
 This is my favorate feature and the reason that I wrote *yant*.
