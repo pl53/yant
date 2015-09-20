@@ -1,4 +1,4 @@
-Yant: Yet Another Note Tool (previously *Yanote*)
+#Yant: Yet Another Note Tool (previously *Yanote*)
 
 Yant is a pure commandline note tool. It supports note operations such as *add*
 (of course!), *remove*, *update*, *search*, *review* (you will love this
@@ -7,21 +7,177 @@ your memory with one command. Moreover, you can do a two-step random review of
 your notes! Think that you have taken tons of notes while learning something
 new, and you want to fortify your new knowledge by reviewing notes from time to
 time. Yant can do this perfectly for you. For each note, it first pops a note
-title (e.g. a new word), then after your press <Enter>, more information shows
+title (e.g. a new word), then after your press [Enter], more information shows
 up (e.g. meaning of the word). The reviewing process is *random*, which means
 you can avoid just reviewing the first few notes again and again.
 
 Check it out and have fun with it!
 
+##Installation
+
 ```
 git clone git@github.com:pl53/yant.git
 cd yant
 bash install.sh
-yant --help
 ```
+You can also download the zip file if you don't have git installed.
 
-Enjoy!
+Note: require Python version >= 3.
 
-(Note: require Python version >= 3. More Doc on the way.) 
+##Basic usages
+The command pattern is *yant [subcommand] [parameters and options]*, similar
+to commandline tools such as git.
 
+### Create notebook
+To create a notebook, simply use the *create* subcommand.
+'''
+yant create -b BOOK
+'''
 
+You can also specify tags for the book with "-t" option and/or description with
+"--desc" option. See '''yant create -h''' for details.
+
+Note: You can use yant without explicitly creating any book. Yant creates a
+default book *scratchpad* for you. If you don't specify a notebook in command,
+*yant* uses *scratchpad*.
+
+### Delete notebook
+The subcommand is *destroy*. You should be absolutely sober when typing this
+command.
+
+### Add flashcard
+Each notebook is a collection of **flashcards**, each of which consists of a
+**title** and unlimited **notes**. To add a new flashcard,
+
+'''
+yant add [-b BOOK] title
+
+'''
+Then yant will prompt you to input notes for this flashcard.
+
+Note: If the note title contains special characters such as space and dash, you
+should quote it.
+
+### Update flashcard
+
+You can update **notes** of a flashcard using subcommand *update* or *up*.
+Updating **title** is not supported currently, but it is in my upgrading plan.
+
+'''
+yant update [-b BOOK] title
+'''
+Then yant will ask you for further commands, such as delete a note, replace a
+note, or append note notes.
+
+### Delete flashcard
+'''
+yant remove [-b BOOK] title
+'''
+You can also use *delete*, *del*, or *rm* instead of *remove*.
+
+### Search notes
+'''
+yant find [-h] [-w] [-b BOOK | -t TAG] [--exec EXEC] keyword
+
+positional arguments:
+  keyword               keyword for search, support wild character
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -w                    Select only those flashcards containing matches the
+                        whole word
+  -b BOOK, --book BOOK  book name
+  -t TAG, --tag TAG     tag name
+  --exec EXEC           command executed on each node, use {} for flashcard
+'''
+
+Each notebook has attached with one or more tags, and you can apply a subcommand
+on books with the same tag, e.g. you can search all notes with a tag "tech".
+
+An advanced feature of find is the *--exec* option. You can specify command to
+execute on the flashcard title. For example, if the book title is a word, you
+can execute *sdcv* for its meaning.
+
+### Tag a book
+As mentioned earlier, each books is associate with tags. "all" is the default
+tag attached to all books automatically by *yant*.
+
+'''
+yant tag [-h] [-d] -b BOOK tags
+
+positional arguments:
+  tags                  a list of tags separated by ';'
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d                    delete the tags if option is speficified
+  -b BOOK, --book BOOK  book name
+'''
+
+### List books
+You can see all existing notebooks you have created, or all books associated
+with the same tag, or etails of a book. If neither "-b" nor "-t" is specified,
+all books are displayed.
+
+list -h
+usage: yant list [-h] [-b BOOK | -t TAG]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -b BOOK, --book BOOK  book name
+  -t TAG, --tag TAG     tag name
+
+### Review flashcards
+This is my favorate feature and the reason that I wrote *yant*.
+
+'''
+yant review [-h] (-b BOOK | -t TAG) [--exec EXEC]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -b BOOK, --book BOOK  book name
+  -t TAG, --tag TAG     tag name
+  --exec EXEC           command executed on each flashcard, use {} for
+                        flashcard title
+'''
+Try it out. I believe you will like it.
+
+### Fortune cookie
+
+This subcommand randomly pick a flashcard and display it, similar to the
+*fortune* command of unix.
+
+'''
+yant fortune [-h] [-b BOOK | -t TAG]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -b BOOK, --book BOOK  book name
+  -t TAG, --tag TAG     tag name
+'''
+
+### Export a notebook
+
+This subcommand dumps all flashcards in readable texts to a specified file or
+console if you don't provide a file.
+'''
+yant export [-h] -b BOOK [--file FILE]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -b BOOK, --book BOOK  book name
+  --file FILE           exporting file, stdout by default
+'''
+
+### Import a notebook
+
+You can import flashcards from an exported file.
+
+'''
+yant import [-h] -b BOOK --file FILE
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -b BOOK, --book BOOK  book name
+  --file FILE           file to import from
+'''
