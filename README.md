@@ -20,7 +20,15 @@ git clone git@github.com:pl53/yant.git
 cd yant
 bash install.sh
 ```
-You can also download the zip file if you don't have git installed.
+
+You can also download the zip file. After upzipping` it, you should see a folder
+*yant-master*.
+
+```
+cd yant-master
+bash install.sh
+```
+
 
 Note: require Python version >= 3.
 
@@ -198,3 +206,8 @@ optional arguments:
   -b BOOK, --book BOOK  book name
   --file FILE           file to import from
 ```
+
+##Tips
+
+1. By default, data are stored in $HOME/.yanote. You can change the default data
+   location by setting environment variable ```YANT_PATH```.
