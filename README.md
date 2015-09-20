@@ -24,6 +24,24 @@ You can also download the zip file if you don't have git installed.
 
 Note: require Python version >= 3.
 
+##Usage example
+```
+$ yant create -b "where_my_stuff"
+Book where_my_stuff created.
+```
+```
+$ yant add -b where_my_stuff passport
+Add a note for passport (press Enter to finish): bottom drawer, steel box
+Add a note for passport (press Enter to finish): 
+Flashcard added/updated to book 'where_my_stuff'.
+```
+```
+$ yant find passport
+==Match #1==
+BOOK: where_my_stuff, TITLE: passport
+#1: bottom drawer, steel box
+```
+
 ##Basic usages
 The command pattern is *yant [subcommand] [parameters and options]*, similar
 to commandline tools such as git.
