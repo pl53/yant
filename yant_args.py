@@ -26,20 +26,28 @@ def parse(args):
 
     parser_add = subparsers.add_parser("add", help="Add a new flashcard")
     parser_add.add_argument("title", metavar="title", help="title of the new flashcard")
+    parser_add.add_argument("--notes", help="notes separated by semicolons")
     parser_add.add_argument("-b", "--book", default="scratchpad", help=book_name_help_msg)
                              
     parser_append = subparsers.add_parser("append", help="Append new notes to an existing flashcard")
-    parser_append.add_argument("title", metavar="title", help="title of the flashcard")
+    key_title = parser_append.add_mutually_exclusive_group(required=True)
+    key_title.add_argument("-k", dest='key', help="hashkey of the flashcard")
+    key_title.add_argument("-t", dest='title', help="title of the flashcard")
+    parser_append.add_argument("--notes", help="notes separated by semicolons")
     parser_append.add_argument("-b", "--book", default="scratchpad", help=book_name_help_msg)
                              
     parser_rm = subparsers.add_parser("remove", aliases=["rm", "delete", "del"], \
                            help="Remove flashcard from book")
+    key_title = parser_rm.add_mutually_exclusive_group(required=True)
+    key_title.add_argument("-k", dest='key', help="hashkey of the flashcard")
+    key_title.add_argument("-t", dest='title', help="title of the flashcard")
     parser_rm.add_argument("-b", "--book", default="scratchpad", help=book_name_help_msg)
-    parser_rm.add_argument("title", metavar="title", help="title of the flashcard")
 
     parser_up = subparsers.add_parser("update", aliases=["up"], \
                                       help="Update a flashcard")
-    parser_up.add_argument("title", metavar="title", help="title of the flashcard to be updated")
+    key_title = parser_up.add_mutually_exclusive_group(required=True)
+    key_title.add_argument("-k", dest='key', help="hashkey of the flashcard")
+    key_title.add_argument("-t", dest='title', help="title of the flashcard")
     parser_up.add_argument("-b", "--book", default="scratchpad", help=book_name_help_msg)
     
     parser_tag = subparsers.add_parser("tag", help="Add or remove tags to/from a book")

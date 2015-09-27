@@ -73,21 +73,16 @@ class Yant:
                 adjusted_names = adjusted_names[listed_per_line:]
                 print(colored(line, "b"))
 
-    def add_flashcard(self, book, flashcard_title):
+    def add_flashcard(self, book, flashcard_title, flashcard_notes=[]):
         self.use_book(book)
-        flashcard_obj = Flashcard(flashcard_title, ask_user_input=True)
+        flashcard_obj = Flashcard(flashcard_title, flashcard_notes)
         self.opened_books[book].add_flashcard(flashcard_obj)
 
-    def append_flashcard(self, book, flashcard_title, raw_notes, use_hashkey):
-        '''
-        self.use_book(book)
-        note_list = raw_notes.split('&&')
-        if use_hashkey:
-            self.opened_books[book].append_flashcard_by_hashkey(flashcard_title, note_list)
-        else:
-            self.opened_books[book].append_flashcard_by_title(flashcard_title, note_list)
-        '''
-        print("Sorry, this feature hasn't been implemented. Please use 'add' or 'update' instead")
+    def append_flashcard_by_key(self, book, key, note_list):
+        self.opened_books[book].append_flashcard_by_key(key, note_list)
+
+    def append_flashcard_by_title(self, book, title, note_list):
+        self.opened_books[book].append_flashcard_by_title(title, note_list)
 
     def add_tags(self, book, tags):
         self.use_book(book)
@@ -95,13 +90,21 @@ class Yant:
             self.opened_books[book].add_tag(tag)
             self.tag_manager.tag_book(tag, book)
 
-    def update_flashcard(self, book, flashcard_title):
+    def update_flashcard_by_key(self, book, key):
         self.use_book(book)
-        self.opened_books[book].update_flashcard(flashcard_title)
+        self.opened_books[book].update_flashcard_by_key(key)
 
-    def remove_flashcard(self, book, flashcard_title):
+    def update_flashcard_by_title(self, book, title):
         self.use_book(book)
-        self.opened_books[book].delete_flashcard(flashcard_title)
+        self.opened_books[book].update_flashcard_by_title(title)
+
+    def remove_flashcard_by_key(self, book, key):
+        self.use_book(book)
+        self.opened_books[book].remove_flashcard_by_key(key)
+
+    def remove_flashcard_by_title(self, book, title):
+        self.use_book(book)
+        self.opened_books[book].remove_flashcard_by_title(title)
 
     def remove_tag(self, book, tags):
         self.use_book(book)

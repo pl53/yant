@@ -68,18 +68,35 @@ def main(argv):
         print("Book '" + colored(args.book, "b") + " deleted.")
 
     elif args.sub_command == "add":
-        yant_obj.add_flashcard(args.book, args.title)
+        if args.note:
+            notes = args.note.split(';');
+        else:
+            notes = []
+        yant_obj.add_flashcard(args.book, args.title, notes)
         print("Flashcard added/updated to book '" + args.book + "'.")
 
     elif args.sub_command == "append":
-        yant_obj.append_flashcard(args.book, args.title)
+        if args.note:
+            notes = args.note.split(';');
+        else:
+            notes = []
+        if args.key:
+            yant.append_flashcard_by_key(args.book, args.key, args.note)
+        else:
+            yant.append_flashcard_by_title(args.book, args.title, args.note)
         print("Flashcard appended.")
 
     elif args.sub_command in ["update", "up"]:
-        yant_obj.update_flashcard(args.book, args.title)
+        if args.key:
+            yant.update_flashcard_by_key(args.book, args.key)
+        else:
+            yant.update_flashcard_by_title(args.book, args.title)
 
     elif args.sub_command in ["remove", "rm", "delete", "del"]:
-        yant_obj.remove_flashcard(args.book, args.title)
+        if args.key:
+            yant.remove_flashcard_by_key(args.book, args.key)
+        else:
+            yant.remove_flashcard_by_title(args.book, args.title)
 
     elif args.sub_command == "tag":
         tags = args.tags.split(';')
