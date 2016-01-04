@@ -7,33 +7,26 @@ import subprocess
 import random
 import logging
 
-from yant_utils import get_data_path
+import yant_utils
 from colors import colors
 colored = colors.colored
 
 '''
 '''
 class Notebook:
-    # used for import/export
-    attr_delim = "+" * 20 + "\n" # delimitter of book attributes
-    note_delim = "-" * 20 + "\n"
-    sdelim = ": "
-    attr_keys = ["name", "tags", "desc", "ctime", "mtime", \
-                 "reserved_property_1", "reserved_property_2", "entries"]
-    attr_desc = ["Notebook name", \
-                 "Tags", \
-                 "Notebook description", \
-                 "Created time", \
-                 "Last updated time", \
-                 "Reserved property 1", \
-                 "Reserved property 2", \
-                 "Note flashcards"]
+    # configs used for import/export
+    yant_config = yant_utils.get_config_parser()
+    attr_delim = yant_config.get('Book', 'attr_delimiter') + '\n'
+    note_delim = yant_config.get('Book', 'note_delimiter') + '\n'
+    sdelim = yant_config.get('Book', 'colon_space')
+    attr_keys = yant_config.get('Book', 'attr_keys').split('\n')
+    attr_desc = yant_config.get('Book', 'attr_desc').split('\n')
 
     def __init__(self, name, flashcard_class):
         self.name = name
         self.flashcard_class = flashcard_class
         self.data = {}
-        self.data_file = os.path.join(get_data_path(), name+".db")
+        self.data_file = os.path.join(yant_utils.get_data_path(), name+".db")
         self.logger = logging.getLogger("Book")
         self.is_data_loaded = False
 

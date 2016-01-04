@@ -1,5 +1,12 @@
 import os
 import re
+import configparser
+
+def get_config_parser():
+    config_file = "yant.cfg"
+    config = configparser.ConfigParser()
+    config.read(config_file)
+    return config
 
 def get_data_path():
     note_path = os.getenv("YANT_PATH")

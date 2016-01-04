@@ -73,9 +73,11 @@ class Yant:
                 adjusted_names = adjusted_names[listed_per_line:]
                 print(colored(line, "b"))
 
-    def add_flashcard(self, book, flashcard_title, flashcard_notes=[]):
+    def add_flashcard(self, book, flashcard_title, flashcard_notes, need_prompt):
         self.use_book(book)
-        flashcard_obj = Flashcard(flashcard_title, flashcard_notes)
+        flashcard_obj = Flashcard(key=flashcard_title, \
+                                  note=flashcard_notes, \
+                                  ask_user_input=need_prompt)
         self.opened_books[book].add_flashcard(flashcard_obj)
 
     def append_flashcard_by_key(self, book, key, note_list):
@@ -92,19 +94,27 @@ class Yant:
 
     def update_flashcard_by_key(self, book, key):
         self.use_book(book)
-        self.opened_books[book].update_flashcard_by_key(key)
+        #TODO
+        #self.opened_books[book].update_flashcard_by_key(key)
+        self.opened_books[book].update_flashcard(key)
 
     def update_flashcard_by_title(self, book, title):
         self.use_book(book)
-        self.opened_books[book].update_flashcard_by_title(title)
+        #TODO
+        #self.opened_books[book].update_flashcard_by_title(title)
+        self.opened_books[book].update_flashcard(title)
 
     def remove_flashcard_by_key(self, book, key):
         self.use_book(book)
-        self.opened_books[book].remove_flashcard_by_key(key)
+        #TODO
+        #self.opened_books[book].remove_flashcard_by_key(key)
+        self.opened_books[book].delete_flashcard(key)
 
     def remove_flashcard_by_title(self, book, title):
         self.use_book(book)
-        self.opened_books[book].remove_flashcard_by_title(title)
+        #TODO
+        #self.opened_books[book].remove_flashcard_by_title(title)
+        self.opened_books[book].delete_flashcard(title)
 
     def remove_tag(self, book, tags):
         self.use_book(book)

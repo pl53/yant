@@ -52,7 +52,7 @@ def main(argv):
             yant_obj.show_book_by_tag(args.tag)
 
     elif args.sub_command == "create":
-        if args.tags != '':
+        if args.tags:
             tags = args.tags.split(';')
         else:
             tags = []
@@ -68,35 +68,37 @@ def main(argv):
         print("Book '" + colored(args.book, "b") + " deleted.")
 
     elif args.sub_command == "add":
-        if args.note:
-            notes = args.note.split(';');
+        if args.notes:
+            notes = args.notes.split(';');
+            need_prompted_notes = False
         else:
             notes = []
-        yant_obj.add_flashcard(args.book, args.title, notes)
+            need_prompted_notes = True
+        yant_obj.add_flashcard(args.book, args.title, notes, need_prompted_notes)
         print("Flashcard added/updated to book '" + args.book + "'.")
 
     elif args.sub_command == "append":
-        if args.note:
-            notes = args.note.split(';');
+        if args.notes:
+            notes = args.notes.split(';');
         else:
             notes = []
         if args.key:
-            yant.append_flashcard_by_key(args.book, args.key, args.note)
+            yant_obj.append_flashcard_by_key(args.book, args.key, args.notes)
         else:
-            yant.append_flashcard_by_title(args.book, args.title, args.note)
+            yant_obj.append_flashcard_by_title(args.book, args.title, args.notes)
         print("Flashcard appended.")
 
     elif args.sub_command in ["update", "up"]:
         if args.key:
-            yant.update_flashcard_by_key(args.book, args.key)
+            yant_obj.update_flashcard_by_key(args.book, args.key)
         else:
-            yant.update_flashcard_by_title(args.book, args.title)
+            yant_obj.update_flashcard_by_title(args.book, args.title)
 
     elif args.sub_command in ["remove", "rm", "delete", "del"]:
         if args.key:
-            yant.remove_flashcard_by_key(args.book, args.key)
+            yant_obj.remove_flashcard_by_key(args.book, args.key)
         else:
-            yant.remove_flashcard_by_title(args.book, args.title)
+            yant_obj.remove_flashcard_by_title(args.book, args.title)
 
     elif args.sub_command == "tag":
         tags = args.tags.split(';')
@@ -139,7 +141,4 @@ def main(argv):
             yant_obj.fortune(args.tag, "tag")
 
 if __name__ == "__main__":
-    try:
-        main(sys.argv)
-    except Exception as e:
-        print("Error:", e)
+    main(sys.argv)
