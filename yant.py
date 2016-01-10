@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+
 import os
 import re
 import sys
@@ -74,8 +75,8 @@ def main(argv):
         else:
             notes = []
             need_prompted_notes = True
-        yant_obj.add_flashcard(args.book, args.title, notes, need_prompted_notes)
-        print("Flashcard added/updated to book '" + args.book + "'.")
+        key = yant_obj.add_flashcard(args.book, args.title, notes, need_prompted_notes)
+        print("Flashcard added to book '" + args.book + "'. Key is " + key + '.')
 
     elif args.sub_command == "append":
         if args.notes:

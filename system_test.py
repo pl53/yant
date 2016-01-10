@@ -1,3 +1,5 @@
+#!/usr/bin/python2.7
+
 import unittest
 import subprocess
 import sys
@@ -16,10 +18,13 @@ class SystemTest(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(SystemTest, self).__init__(*args, **kwargs)
 
-        pwd = my_command_call(['pwd']).strip()
-        my_command_call(['mkdir', 'devo'])
+        #pwd = my_command_call(['pwd']).strip()
+        #my_command_call(['mkdir', 'devo'])
         # set data dir
-        os.environ['YANT_PATH'] =  os.path.join(pwd, 'devo')
+        test_path = os.path.join(os.getenv("HOME"), ".yanote/devo/")
+        if not os.path.exists(test_path):
+            os.makedirs(test_path)
+        os.environ['YANT_PATH'] = test_path 
         self.yant_path = os.getenv('YANT_PATH')
 
     def setUp(self):

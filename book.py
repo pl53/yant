@@ -8,6 +8,7 @@ import random
 import logging
 
 import yant_utils
+from flashcard import Flashcard
 from colors import colors
 colored = colors.colored
 
@@ -210,12 +211,17 @@ class Notebook:
     def review_one_flashcard(self, exec_cmd=[]):
         try:
             self.review_cnt += 1
-            flashcard = self.__next__()
-            flashcard_changed = flashcard.review(exec_cmd)
+            key = self.__next__()
+            flashcard = self.data['entries'][key]
+            new_flashcard = Flashcard(flashcard.key, \
+                                      flashcard.note,\
+                                      flashcard.weight)
+            flashcard_changed = new_flashcard.review(exec_cmd)
             if flashcard_changed:
+                self.data['entries'][key] = new_flashcard
                 self.data["mtime"] = time.ctime()
             if flashcard.can_delete():
-                self.data["entries"].pop(flashcard.get_key(), None)
+                self.data["entries"].pop(key, None)
         except AttributeError as e:
             print(e, "forgot to call start_review before reviewing?")
         except StopIteration as e:
@@ -355,10 +361,8 @@ class Notebook:
         return self
 
     def __next__(self):
-        try:
-            self.index += 1
-            key = self.keys[self.index]
-            return self.data["entries"][key]
-        except IndexError as e:
-            self.save()
+        self.index += 1
+        if self.index < len(self.keys):
+            return self.keys[self.index]
+        else:
             raise StopIteration

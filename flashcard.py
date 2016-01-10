@@ -98,22 +98,18 @@ class Flashcard:
         if commands == []:
             return
 
-        if len(self.key.split()) > 1:
-            # key contains white space
-            param = '"' + self.key + '"'
-        else:
-            param = self.key
-
         for cmd in commands:
-            listed_cmd = cmd.replace("{}", param).split()
-            print(colored("Executing " + listed_cmd[0], "r"))
+            # replace space with newline to deal with keys that have space
+            cmd = cmd.replace(' ', '\n')
+            listed_cmd = cmd.replace("{}", self.key).split('\n')
+            print(colored(' '.join(listed_cmd), "r"))
             subprocess.call(listed_cmd)
 
     def show_user_note(self):
         if self.note:
             print(self.format_note())
         else:
-            print(["<No user note>"])
+            print("<No user note>")
 
     def show_note(self, external_note_cmd=[]):
         self.show_external_note(external_note_cmd)

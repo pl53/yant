@@ -80,6 +80,7 @@ class Yant:
                                   note=flashcard_notes, \
                                   ask_user_input=need_prompt)
         self.opened_books[book].add_flashcard(key, flashcard_obj)
+        return key
 
     def append_flashcard_by_key(self, book, key, title, note_list):
         self.use_book(book)
