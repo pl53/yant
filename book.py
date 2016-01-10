@@ -135,13 +135,9 @@ class Notebook:
 
     def delete_flashcard(self, key):
         self.load()
-        try:
-            self.data["entries"].pop(key)
-            self.update_mtime()
-            self.save()
-            print("Record deleted from book '" + self.name + "'.")
-        except KeyError as e:
-            print("flashcard with the title '" + key +  "' not found, skip.")
+        self.data["entries"].pop(key)
+        self.update_mtime()
+        self.save()
 
     def get_description(self):
         self.load()
@@ -339,11 +335,17 @@ class Notebook:
 
     def get_key(self, title):
         self.load()
-        hashkey = yant_utils.hashkey(title)
-        if self.data['entries'].get(hashkey, title) != title:
+        if title in self.data['entries']:
+            # back compatibility for flashcard that uses raw title as key
             return title
-        else:
+
+        hashkey = yant_utils.hashkey(title)
+        if hashkey not in self.data['entries'] or \
+                self.data['entries'][hashkey].get_key() == title:
+            # if it is a new title or no hashkey collision detected
             return hashkey
+        else:
+            return title
 
     def __iter__(self):
         self.load()

@@ -107,12 +107,19 @@ class Yant:
 
     def remove_flashcard_by_key(self, book, key):
         self.use_book(book)
-        self.opened_books[book].delete_flashcard(key)
+        try:
+            self.opened_books[book].delete_flashcard(key)
+        except KeyError:
+            print("No flashcard found for key '" + key + "'.")
 
     def remove_flashcard_by_title(self, book, title):
         self.use_book(book)
         key = self.opened_books[book].get_key(title.strip())
-        self.opened_books[book].delete_flashcard(key)
+        try:
+            self.opened_books[book].delete_flashcard(key)
+        except KeyError:
+            print("No flashcard found for title '" + title + "'.")
+            print("The hash key for this title is '" + key + "'.")
 
     def remove_tag(self, book, tags):
         self.use_book(book)

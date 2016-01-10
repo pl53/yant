@@ -49,6 +49,9 @@ class SystemTest(unittest.TestCase):
         my_command_call([YANT, 'delete', '-b', 'whereIs', '-t', 'item3'])
         find_output = my_command_call([YANT, 'find', '-b', 'whereIs', 'item3'])
         self.assertNotIn('location3', find_output)
+        my_command_call([YANT, 'delete', '-b', 'whereIs', '-k', '235bacd'])
+        find_output = my_command_call([YANT, 'find', '-b', 'whereIs', 'item2'])
+        self.assertNotIn('location2', find_output)
 
     def test_review(self):
         review_output = my_command_call([YANT, 'review', '-b', 'whereIs'], '\n\n\n\n\n\n')
@@ -79,7 +82,7 @@ class SystemTest(unittest.TestCase):
         self.assertIn('location_1', find_output)
         self.assertNotIn('location1', find_output)
 
-        my_command_call([YANT, 'update', '-b', 'whereIs', '-t', 'item2'], 'a\nlocation_2\n\n')
+        my_command_call([YANT, 'update', '-b', 'whereIs', '-k', '235bacd'], 'a\nlocation_2\n\n')
         find_output = my_command_call([YANT, 'find', '-b', 'whereIs', 'item2'])
         self.assertIn('location2', find_output)
         self.assertIn('location_2', find_output)
