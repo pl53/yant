@@ -18,7 +18,7 @@ class Notebook:
     yant_config = yant_utils.get_config_parser()
     attr_delim = yant_config.get('Book', 'attr_delimiter') + '\n'
     note_delim = yant_config.get('Book', 'note_delimiter') + '\n'
-    sdelim = yant_config.get('Book', 'colon_space')
+    sdelim = yant_config.get('Book', 'value_delimiter') + ' '
     attr_keys = yant_config.get('Book', 'attr_keys').split('\n')
     attr_desc = yant_config.get('Book', 'attr_desc').split('\n')
 
