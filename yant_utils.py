@@ -1,6 +1,13 @@
 import os
 import re
 import configparser
+import hashlib
+
+class YantException(Exception):
+    def __init__(self, s):
+        self.value = s
+    def __str__(self):
+        return str(self.value)
 
 def get_config_parser():
     config_file = "yant.cfg"
@@ -31,9 +38,12 @@ def validate_name(pattern, name, exception_msg=""):
             exception_msg = "'" + name + "' doesn't match required pattern " + pattern
         raise Exception(exception_msg) 
 
-class YantException(Exception):
-    def __init__(self, s):
-        self.value = s
-    def __str__(self):
-        return str(self.value)
-
+def hashkey(s):
+    '''
+        Generate a 28 bits (7 hex digits) hashcode
+        Birthday attach prob.: (0.01, 2322), (0.001, 732), (0.0001, 231)
+        In case of collision, we can still use raw key for the dict
+    '''
+    md5 = hashlib.md5(bytearray(s, 'utf-8'))
+    hexdigest = md5.hexdigest()
+    return hexdigest[:7]

@@ -70,9 +70,6 @@ class Notebook:
         with open(self.data_file, "wb") as fp:
             pickle.dump(self.data, fp)
 
-        #self.is_data_loaded = False
-        
-
     def show_detail(self):
         self.load()
         print("Name:", self.data["name"])
@@ -80,8 +77,6 @@ class Notebook:
         print("Description:", self.data["desc"]) 
         print("Creation Time:", self.data["ctime"])
         print("Last Update:", self.data["mtime"]) 
-        #print("Other info.:", self.data["reserved_property_1"])
-        #print("Other info.:", self.data["reserved_property_2"])
         print("Total flashcards:", len(self.data["entries"]))
 
     def update_desc(self, desc):
@@ -103,8 +98,7 @@ class Notebook:
     @flashcard_obj flashcard object
     @return None
     '''
-    def add_flashcard(self, flashcard_obj):
-        key = flashcard_obj.key
+    def add_flashcard(self, key, flashcard_obj):
         self.load()
         if key in self.data["entries"]:
             self.data["entries"][key].merge(flashcard_obj)
@@ -113,9 +107,15 @@ class Notebook:
         self.update_mtime()
         self.save()
 
-    def update_flashcard(self, raw_key, feedback=True):
+    def append_flashcard(self, key, note_list):
+        if key not in self.data['entries']:
+            raise yant_utils.YantException('Flashcard ' + key + ' not in the book.')
+        self.data['entries'][key].append(note_list)
+        self.update_mtime()
+        self.save()
+
+    def update_flashcard(self, key, feedback=True):
         '''Set feedback to False for unittest'''
-        key = raw_key.strip()
         self.load()
         if key in self.data["entries"]:
             rv = self.data["entries"][key].update()
@@ -133,8 +133,7 @@ class Notebook:
                 print("flashcard not updated.")
         return rv
 
-    def delete_flashcard(self, raw_key):
-        key = raw_key.strip()
+    def delete_flashcard(self, key):
         self.load()
         try:
             self.data["entries"].pop(key)
@@ -196,13 +195,13 @@ class Notebook:
         if whole_word:
             # match empty at the beginning and end of keyword
             pattern = "\\b" + pattern + "\\b"
-        result = []
+        result = {}
         prog = re.compile(pattern, re.IGNORECASE)
         self.load()
         for e in self.data["entries"]:
             # 'search' instead of 'match' to find anywhere in string
             if prog.search(self.data["entries"][e].__str__()):
-                result.append(self.data["entries"][e])
+                result[e] = self.data['entries'][e]
         return result
 
     # review a given flashcard
@@ -337,6 +336,14 @@ class Notebook:
         random.shuffle(self.data["entries"])
         return self.data["entries"]
     '''
+
+    def get_key(self, title):
+        self.load()
+        hashkey = yant_utils.hashkey(title)
+        if self.data['entries'].get(hashkey, title) != title:
+            return title
+        else:
+            return hashkey
 
     def __iter__(self):
         self.load()

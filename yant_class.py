@@ -75,16 +75,20 @@ class Yant:
 
     def add_flashcard(self, book, flashcard_title, flashcard_notes, need_prompt):
         self.use_book(book)
+        key = self.opened_books[book].get_key(flashcard_title.strip())
         flashcard_obj = Flashcard(key=flashcard_title, \
                                   note=flashcard_notes, \
                                   ask_user_input=need_prompt)
-        self.opened_books[book].add_flashcard(flashcard_obj)
+        self.opened_books[book].add_flashcard(key, flashcard_obj)
 
-    def append_flashcard_by_key(self, book, key, note_list):
-        self.opened_books[book].append_flashcard_by_key(key, note_list)
+    def append_flashcard_by_key(self, book, key, title, note_list):
+        self.use_book(book)
+        self.opened_books[book].append_flashcard(key, note_list)
 
     def append_flashcard_by_title(self, book, title, note_list):
-        self.opened_books[book].append_flashcard_by_title(title, note_list)
+        self.use_book(book)
+        key = self.opened_books[book].get_key(title.strip())
+        self.opened_books[book].append_flashcard(key, note_list)
 
     def add_tags(self, book, tags):
         self.use_book(book)
@@ -94,27 +98,21 @@ class Yant:
 
     def update_flashcard_by_key(self, book, key):
         self.use_book(book)
-        #TODO
-        #self.opened_books[book].update_flashcard_by_key(key)
         self.opened_books[book].update_flashcard(key)
 
     def update_flashcard_by_title(self, book, title):
         self.use_book(book)
-        #TODO
-        #self.opened_books[book].update_flashcard_by_title(title)
-        self.opened_books[book].update_flashcard(title)
+        key = self.opened_books[book].get_key(title.strip())
+        self.opened_books[book].update_flashcard(key)
 
     def remove_flashcard_by_key(self, book, key):
         self.use_book(book)
-        #TODO
-        #self.opened_books[book].remove_flashcard_by_key(key)
         self.opened_books[book].delete_flashcard(key)
 
     def remove_flashcard_by_title(self, book, title):
         self.use_book(book)
-        #TODO
-        #self.opened_books[book].remove_flashcard_by_title(title)
-        self.opened_books[book].delete_flashcard(title)
+        key = self.opened_books[book].get_key(title.strip())
+        self.opened_books[book].delete_flashcard(key)
 
     def remove_tag(self, book, tags):
         self.use_book(book)
@@ -153,13 +151,15 @@ class Yant:
         for b in self.opened_books:
             bo = self.opened_books[b]
             matches = bo.search_flashcards(keyword, whole_word)
-            if matches != []:
+            if matches:
                 matched_book_cnt += 1
-                for k,flashcard in enumerate(matches):
+                for key in matches:
                     matched_flashcard_cnt += 1
                     print("==Match #" + str(matched_flashcard_cnt) + "==")
-                    print("BOOK:", colored(b, "y"), end=", ")
-                    print("TITLE:", end=' ')
+                    print('BOOK:', colored(b, "y"), end=", ")
+                    print('KEY:', colored(key, "y"))
+                    print('Title: ', end='')
+                    flashcard = matches[key]
                     flashcard.show_key()
                     flashcard.show_note(exec_cmd)
         print("{0} matched record(s) found in {1} book(s).".format(\
