@@ -10,7 +10,8 @@ class YantException(Exception):
         return str(self.value)
 
 def get_config_parser():
-    config_file = "yant.cfg"
+    main_base = os.path.dirname(__file__)
+    config_file = os.path.join(main_base, 'yant.cfg')
     config = configparser.ConfigParser()
     config.read(config_file)
     return config
