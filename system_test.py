@@ -1,15 +1,18 @@
-#!/usr/bin/python2.7
+#!/usr/bin/env python3
 
 import unittest
 import subprocess
 import sys
 import os
 
-def my_command_call(command, input_string=None):
+def my_command_call(command, input=None):
     p = subprocess.Popen(command, stdout=subprocess.PIPE, \
                          stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
-    result = p.communicate(input=input_string)
-    return result[0]
+    if input:
+        result = p.communicate(input.encode())
+    else:
+        result = p.communicate()
+    return str(result[0])
 
 YANT = './yant.py'
 #YANT = '/usr/local/yant/yant.py'

@@ -100,16 +100,22 @@ class Flashcard:
 
         for cmd in commands:
             # replace space with newline to deal with keys that have space
-            cmd = cmd.replace(' ', '\n')
-            listed_cmd = cmd.replace("{}", self.key).split('\n')
-            print(colored(' '.join(listed_cmd), "r"))
+            lined_cmd = cmd.replace(' ', '\n')
+            listed_cmd = lined_cmd.replace("{}", self.key).split('\n')
+            if len(self.key.split()) > 1:
+                # key contains whitespace
+                printed_cmd = cmd.replace("{}", "'" + self.key + "'")
+            else:
+                printed_cmd = cmd.replace("{}", self.key)
+            print('\n' + colored('Run ', "r") + colored(printed_cmd, 'b'))
             subprocess.call(listed_cmd)
 
     def show_user_note(self):
+        print(colored('Your notes:', 'r'))
         if self.note:
             print(self.format_note())
         else:
-            print("<No user note>")
+            print("<No note added>")
 
     def show_note(self, external_note_cmd=[]):
         self.show_external_note(external_note_cmd)
