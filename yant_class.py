@@ -82,7 +82,7 @@ class Yant:
         self.opened_books[book].add_flashcard(key, flashcard_obj)
         return key
 
-    def append_flashcard_by_key(self, book, key, title, note_list):
+    def append_flashcard_by_key(self, book, key, note_list):
         self.use_book(book)
         self.opened_books[book].append_flashcard(key, note_list)
 

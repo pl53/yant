@@ -46,7 +46,7 @@ class Flashcard:
         self.weight = other.weight
 
     def append(self, new_notes=[]):
-        if new_notes != []:
+        if new_notes:
             self.note += list(new_notes)
         else:
             while True:

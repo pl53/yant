@@ -109,9 +109,15 @@ class Notebook:
         self.save()
 
     def append_flashcard(self, key, note_list):
+        self.load()
         if key not in self.data['entries']:
             raise yant_utils.YantException('Flashcard ' + key + ' not in the book.')
-        self.data['entries'][key].append(note_list)
+        flashcard = self.data['entries'][key]
+        new_flashcard = Flashcard(flashcard.key,
+                                  flashcard.note,
+                                  flashcard.weight)
+        new_flashcard.append(note_list)
+        self.data['entries'][key] = new_flashcard
         self.update_mtime()
         self.save()
 
@@ -217,7 +223,7 @@ class Notebook:
                                       flashcard.note,\
                                       flashcard.weight)
             flashcard_changed = new_flashcard.review(exec_cmd)
-            if flashcard_changed:
+            if flashcard_changed or not isinstance(flashcard, Flashcard):
                 self.data['entries'][key] = new_flashcard
                 self.data["mtime"] = time.ctime()
             if flashcard.can_delete():
