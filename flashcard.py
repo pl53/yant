@@ -1,5 +1,5 @@
 from colors import colors
-from yant_utils import YantException
+import yant_utils
 import utils
 import subprocess
 colored = colors.colored
@@ -13,9 +13,9 @@ class Flashcard:
             if ask_user_input:
                 self.append()
         except:
-            raise YantException("Title should be string and note should be list")
+            raise yant_utils.YantException("Title should be string and note should be list")
         if weight > 5 or weight < 1:
-            raise YantException("Flashcard weight should be an integer in range [1, 5]")
+            raise yant_utils.YantException("Flashcard weight should be an integer in range [1, 5]")
 
         # weight assigned by the user, potential future use
         self.weight = weight 
@@ -24,7 +24,7 @@ class Flashcard:
     '''
     def merge(self, flashcard):
         if self.key != flashcard.key:
-            raise YantException("Cannot merge flashcards with different keys.")
+            raise yant_utils.YantException("Cannot merge flashcards with different keys.")
         else:
             self.note += flashcard.note
             self.weight = (self.weight + flashcard.weight) // 2
@@ -33,7 +33,7 @@ class Flashcard:
         try:
             self.note.pop(i)
         except IndexError as e:
-            raise YantException("flashcard doesn't exist.")
+            raise yant_utils.YantException("flashcard doesn't exist.")
 
     def input(self):
         return input("Add a note for {} (press {} to finish): "\
@@ -98,17 +98,37 @@ class Flashcard:
         if commands == []:
             return
 
+        expanded_commands = []
+        # preprocessing commands to expand '{+}' 
         for cmd in commands:
-            # replace space with newline to deal with keys that have space
-            lined_cmd = cmd.replace(' ', '\n')
-            listed_cmd = lined_cmd.replace("{}", self.key).split('\n')
-            if len(self.key.split()) > 1:
-                # key contains whitespace
-                printed_cmd = cmd.replace("{}", "'" + self.key + "'")
+            if '{+}' in cmd:
+                if len(self.note) == 0:
+                    new_cmd = cmd.replace('{+}', '')
+                    expanded_commands.append(new_cmd)
+                    continue
+                for i in range(len(self.note)):
+                    new_cmd = cmd.replace('{+}', '{'+str(i+1)+'}')
+                    expanded_commands.append(new_cmd)
             else:
-                printed_cmd = cmd.replace("{}", self.key)
-            print('\n' + colored('Run ', "r") + colored(printed_cmd, 'b'))
-            subprocess.call(listed_cmd)
+                expanded_commands.append(cmd)
+
+        trans = {}
+        trans['{}'] = yant_utils.quote_multi_words(self.key)
+        trans['{0}'] = yant_utils.quote_multi_words(self.key)
+        for i in range(len(self.note)):
+             quoted_note = yant_utils.quote_multi_words(self.note[i])
+             trans['{'+str(i+1)+'}'] = quoted_note
+
+        cmd_list = []
+        for cmd in expanded_commands:
+            # replace space with newline to deal with keys that have space
+            for f,t in trans.items():
+                cmd = cmd.replace(f, t)
+            cmd_list.append(cmd)
+
+        for cmd in cmd_list:
+            print(colored('Run ', "r") + colored(cmd, 'b'))
+            subprocess.call(cmd, shell=True)
 
     def show_user_note(self):
         print(colored('Your notes:', 'r'))

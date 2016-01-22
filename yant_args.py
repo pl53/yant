@@ -69,14 +69,15 @@ def parse(args):
     find_dest = parser_find.add_mutually_exclusive_group(required=False)
     find_dest.add_argument("-b", "--book", help="book name")
     find_dest.add_argument("-t", "--tag", default="all", help="tag name")
-    parser_find.add_argument("--exec", help="command executed on each node, use {} for flashcard title")
+    parser_find.add_argument("--exec", help="command executed on each node, use {0} for flashcard title, \
+                             {i} for note #i, {+} for all notes.")
 
     parser_review = subparsers.add_parser("review", help="Randomly review flashcards")
     review_dest = parser_review.add_mutually_exclusive_group(required=True)
     review_dest.add_argument("-b", "--book", help="book name")
     review_dest.add_argument("-t", "--tag", help="tag name")
-    parser_review.add_argument("--exec", \
-                               help="command executed on each flashcard, use {} for flashcard title")
+    parser_review.add_argument("--exec", help="command executed on each node, use {0} for flashcard title, \
+                             {i} for note #i, {+} for all notes.")
 
     parser_fortune = subparsers.add_parser("fortune", help="Fortune cookie")
     fortune_dest = parser_fortune.add_mutually_exclusive_group(required=False)
