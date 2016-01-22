@@ -1,12 +1,12 @@
-#Yant: Yet Another Note Tool (previously *Yanote*)
+#Yant: Yet Another Note Tool
 
 Yant is a pure commandline note tool. It supports note operations such as *add*
-(of course!), *remove*, *update*, *search*, *review* (you will love this
+(of course!), *remove*, *update*, *search*, *review* (I love this
 feature), *import*, *export*, *fortune*, etc. With Yant, you can quickly find
 your memory with one command. Moreover, you can do a two-step random review of
 your notes! Think that you have taken tons of notes while learning something
 new, and you want to fortify your new knowledge by reviewing notes from time to
-time. Yant can do this perfectly for you. For each note, it first pops a note
+time. Yant can do this perfectly for you. For each flashcard, it first pops a note
 title (e.g. a new word), then after your press [Enter], more information shows
 up (e.g. meaning of the word). The reviewing process is *random*, which means
 you can avoid just reviewing the first few notes again and again.
@@ -76,9 +76,21 @@ Each notebook is a collection of **flashcards**, each of which consists of a
 **title** and unlimited **notes**. To add a new flashcard,
 
 ```
-yant add [-b BOOK] title
+usage: yant add [-h] [--notes NOTES] [-b BOOK] title
+
+positional arguments:
+  title                 title of the new flashcard
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --notes NOTES         notes separated by semicolons
+  -b BOOK, --book BOOK  book name, use default 'scratchpad' if not specified
 ```
-Then yant will prompt you to input notes for this flashcard.
+
+Then yant will prompt you to input notes for this flashcard if ```--note```
+option not provided. After successfully adding a flashcard, yant computes a hash
+code for this flashcard (like ```git```'s commit reference), you can late use
+this hashcode to update the flashcard with the ```-k``` option.
 
 Note: If the note title contains special characters such as space and dash, you
 should quote it.
@@ -89,14 +101,20 @@ You can update **notes** of a flashcard using subcommand *update* or *up*.
 Updating **title** is not supported currently, but it is in my upgrading plan.
 
 ```
-yant update [-b BOOK] title
+usage: yant update [-h] (-k KEY | -t TITLE) [-b BOOK]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -k KEY                hashkey of the flashcard
+  -t TITLE              title of the flashcard
+  -b BOOK, --book BOOK  book name, use default 'scratchpad' if not specified
 ```
 Then yant will ask you for further commands, such as delete a note, replace a
 note, or append note notes.
 
 ### Delete flashcard
 ```
-yant remove [-b BOOK] title
+yant remove [-h] (-k KEY | -t TITLE) [-b BOOK]
 ```
 You can also use *delete*, *del*, or *rm* instead of *remove*.
 
@@ -113,7 +131,8 @@ optional arguments:
                         whole word
   -b BOOK, --book BOOK  book name
   -t TAG, --tag TAG     tag name
-  --exec EXEC           command executed on each node, use {} for flashcard
+  --exec EXEC           command executed on each node, use {0} for flashcard
+                        title, {i} for note #i, {+} for all notes.
 ```
 
 Each notebook has attached with one or more tags, and you can apply a subcommand
@@ -162,8 +181,8 @@ optional arguments:
   -h, --help            show this help message and exit
   -b BOOK, --book BOOK  book name
   -t TAG, --tag TAG     tag name
-  --exec EXEC           command executed on each flashcard, use {} for
-                        flashcard title
+  --exec EXEC           command executed on each node, use {0} for flashcard
+                        title, {i} for note #i, {+} for all notes.
 ```
 Try it out. I believe you will like it.
 
@@ -211,3 +230,5 @@ optional arguments:
 
 1. By default, data are stored in $HOME/.yanote. You can change the default data
    location by setting environment variable ```YANT_PATH```.
+
+2. You can specifiy multiple ```--exec``` commands by using ```;``` as a separator.
