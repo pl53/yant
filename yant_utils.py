@@ -48,3 +48,11 @@ def hashkey(s):
     md5 = hashlib.md5(bytearray(s, 'utf-8'))
     hexdigest = md5.hexdigest()
     return hexdigest[:7]
+
+def quote_multi_words(s):
+    ''' add single-quote to string if it contains whitespace'''
+    if len(s.split()) > 1:
+        # s contains whitespace
+        return "'" + s + "'"
+    else:
+        return s
