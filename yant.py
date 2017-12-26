@@ -25,9 +25,9 @@ def main(argv):
     if args.sub_command == None:
         raise Exception("No command provided. Use '-h' to see available commands.")
     log_file = os.path.join(yant_utils.get_data_path(), "yant.log")
-    logging.basicConfig(filename=log_file, level=logging.DEBUG)
+    logging.basicConfig(filename=log_file, level=logging.INFO)
     logger = logging.getLogger("Yant")
-    logger.info("Yant starts.")
+    logger.debug("Yant starts.")
 
     valid_name_pattern =  "^[a-zA-Z][a-zA-Z0-9_-]*$"
 
@@ -38,7 +38,6 @@ def main(argv):
             book = "scratchpad",\
             tags=["all"],\
             description="The default notebook used when a book is not specified")
-    logger.setLevel(logging.INFO)
     '''
     if args.book:
         yant_utils.validate_name(valid_name_pattern, args.book)
