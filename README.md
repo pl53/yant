@@ -16,7 +16,7 @@ Check it out and have fun with it!
 ##Installation
 
 ```
-git clone git@github.com:pl53/yant.git
+git clone https://github.com/pl53/yant
 cd yant
 bash install.sh
 ```
