@@ -1,4 +1,4 @@
-#Yant: Yet Another Note Tool
+# Yant: Yet Another Note Tool
 
 Yant is a pure commandline note tool. It supports note operations such as *add*
 (of course!), *remove*, *update*, *search*, *review* (I love this
@@ -13,7 +13,7 @@ you can avoid just reviewing the first few notes again and again.
 
 Check it out and have fun with it!
 
-##Installation
+## Installation
 
 ```
 git clone https://github.com/pl53/yant
@@ -32,7 +32,7 @@ bash install.sh
 
 Note: require Python version >= 3.
 
-##Usage example
+## Usage example
 ```
 $ yant create -b "where_my_stuff"
 Book where_my_stuff created.
@@ -50,7 +50,7 @@ BOOK: where_my_stuff, TITLE: passport
 #1: bottom drawer, steel box
 ```
 
-##Basic usages
+## Basic usages
 The command pattern is *yant [subcommand] [parameters and options]*, similar
 to commandline tools such as git.
 
@@ -226,7 +226,7 @@ optional arguments:
   --file FILE           file to import from
 ```
 
-##Tips
+## Advanced usage
 
 1. By default, data are stored in $HOME/.yanote. You can change the default data
    location by setting environment variable ```YANT_PATH```.
