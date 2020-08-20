@@ -3,6 +3,7 @@
 import unittest
 import subprocess
 import os
+from yant import runner
 
 
 def my_command_call(command, arg=None):
@@ -16,7 +17,7 @@ def my_command_call(command, arg=None):
     return str(result[0])
 
 
-YANT = '../yant/runner.py'
+YANT = os.path.abspath(runner.__file__)
 
 
 class SystemTest(unittest.TestCase):
