@@ -1,8 +1,7 @@
 # unit tests for yanote
 import unittest
-import flashcard
-import yant
-import yant_utils
+from yant.model import flashcard
+
 
 class FlashcardTestCase(unittest.TestCase):
     def setUp(self):
@@ -43,8 +42,9 @@ class FlashcardTestCase(unittest.TestCase):
             self.dog_flashcard1.exec_cmd("q")
         
     def tearDown(self):
-        ''' nothing to do here, Python does GC '''
+        # nothing to do here, Python does GC
         pass
+
 
 if __name__ == "__main__":
     unittest.main()

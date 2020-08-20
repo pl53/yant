@@ -2,29 +2,31 @@
 
 import unittest
 import subprocess
-import sys
 import os
 
-def my_command_call(command, input=None):
-    p = subprocess.Popen(command, stdout=subprocess.PIPE, \
+
+def my_command_call(command, arg=None):
+
+    p = subprocess.Popen(command, stdout=subprocess.PIPE,
                          stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
-    if input:
-        result = p.communicate(input.encode())
+    if arg:
+        result = p.communicate(arg.encode())
     else:
         result = p.communicate()
     return str(result[0])
 
-YANT = './yant.py'
-#YANT = '/usr/local/yant/yant.py'
+
+YANT = '../yant/runner.py'
+
 
 class SystemTest(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(SystemTest, self).__init__(*args, **kwargs)
 
-        #pwd = my_command_call(['pwd']).strip()
-        #my_command_call(['mkdir', 'devo'])
+        # pwd = my_command_call(['pwd']).strip()
+        # my_command_call(['mkdir', 'devo'])
         # set data dir
-        test_path = os.path.join(os.getenv("HOME"), ".yanote/devo/")
+        test_path = os.path.join(os.getenv("HOME"), ".yant/test/")
         if not os.path.exists(test_path):
             os.makedirs(test_path)
         os.environ['YANT_PATH'] = test_path 
@@ -77,8 +79,8 @@ class SystemTest(unittest.TestCase):
     def test_export_import(self):
         export_file = os.path.join(self.yant_path, 'whereIs.ex')
         my_command_call([YANT, 'export', '-b', 'whereIs', '--file', export_file])
-        my_command_call([YANT, 'create', '-b', 'whereIs2', '--desc', \
-                          'A notebook for finding my personal belongings'])
+        my_command_call([YANT, 'create', '-b', 'whereIs2', '--desc',
+                         'A notebook for finding my personal belongings'])
         my_command_call([YANT, 'import', '-b', 'whereIs2', '--file', export_file])
         find_output = my_command_call([YANT, 'find', '-b', 'whereIs2', 'item2'])
         self.assertIn('location2', find_output)
@@ -102,6 +104,7 @@ class SystemTest(unittest.TestCase):
     def tearDown(self):
         my_command_call([YANT, 'destroy', '-b', 'whereIs'], 'y\n')
         my_command_call([YANT, 'destroy', '-b', 'whereIs2'], 'y\n')
+
 
 if __name__ == '__main__':
     unittest.main()

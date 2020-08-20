@@ -1,12 +1,13 @@
 import random
 import logging
 
-from yant_utils import list_all_books
-from flashcard import Flashcard
-from book import Notebook
-from tag import TagManager
-from colors import colors
-colored = colors.colored
+from yant.utils.yant_utils import list_all_books
+from yant.model.flashcard import Flashcard
+from yant.model.book import Notebook
+from yant.model.tag import TagManager
+from yant.utils import colors
+colored = colors.Colors.colored
+
 
 class Yant:
     def __init__(self, flashcard_class):

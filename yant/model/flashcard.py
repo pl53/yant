@@ -1,11 +1,11 @@
-from colors import colors
-import yant_utils
-import utils
+from yant.utils import colors
+from yant.utils import utils, yant_utils
 import subprocess
-colored = colors.colored
+colored = colors.Colors.colored
+
 
 class Flashcard:
-    ''' basic flashcard type for memo notebook '''
+    # basic flashcard type for memo notebook
     def __init__(self, key, note=[], weight=3, ask_user_input=False):
         try:
             self.key = key.strip() # "key" means "title" in user's language
@@ -81,7 +81,7 @@ class Flashcard:
         return self.weight == 0
 
     def format_note(self):
-        return '\n'.join(["#"+ str(i+1) + ": " + utils.fstr(s) \
+        return '\n'.join(["#" + str(i+1) + ": " + utils.fstr(s) \
                           for i,s in enumerate(self.note)])
 
     ''' TODO: make "green" configurable

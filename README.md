@@ -18,7 +18,7 @@ Check it out and have fun with it!
 ```
 git clone https://github.com/pl53/yant
 cd yant
-bash install.sh
+bash ./bin/install.sh
 ```
 
 You can also download the zip file. After upzipping` it, you should see a folder
@@ -26,7 +26,7 @@ You can also download the zip file. After upzipping` it, you should see a folder
 
 ```
 cd yant-master
-bash install.sh
+bash ./bin/install.sh
 ```
 
 
@@ -231,4 +231,4 @@ optional arguments:
 1. By default, data are stored in $HOME/.yanote. You can change the default data
    location by setting environment variable ```YANT_PATH```.
 
-2. You can specifiy multiple ```--exec``` commands by using ```;``` as a separator.
+2. You can specify multiple ```--exec``` commands by using ```;``` as a separator.

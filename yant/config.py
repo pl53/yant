@@ -4,8 +4,10 @@ config_file = "yant.cfg"
 config = configparser.ConfigParser()
 config.read(config_file)
 
+
 def get(section, option):
     return config[section][option]
+
 
 def set(section, option, value):
     if section not in config:

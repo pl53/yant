@@ -1,35 +1,29 @@
 #!/usr/bin/env python3
 
 import os
-import re
 import sys
 import logging
-import random
-import argparse
-import operator
-from itertools import accumulate
 
-from flashcard import Flashcard
-import book
-import yant_args
-import utils
-import yant_utils
-from yant_class import Yant
-from colors import colors
-colored = colors.colored
+from yant.model.flashcard import Flashcard
+from yant import arg_parser
+from yant.utils import utils, yant_utils
+from yant.model.yant import Yant
+from yant.utils import colors
+colored = colors.Colors.colored
+
 
 def main(argv):
 
     utils.require_python_version(3) # major version should be 3
-    args = yant_args.parse(argv[1:])
-    if args.sub_command == None:
+    args = arg_parser.parse(argv[1:])
+    if not args.sub_command:
         raise Exception("No command provided. Use '-h' to see available commands.")
     log_file = os.path.join(yant_utils.get_data_path(), "yant.log")
     logging.basicConfig(filename=log_file, level=logging.INFO)
     logger = logging.getLogger("Yant")
     logger.debug("Yant starts.")
 
-    valid_name_pattern =  "^[a-zA-Z][a-zA-Z0-9_-]*$"
+    # valid_name_pattern =  "^[a-zA-Z][a-zA-Z0-9_-]*$"
 
     yant_obj = Yant(Flashcard)
     logger.setLevel(logging.ERROR)
@@ -139,6 +133,7 @@ def main(argv):
             yant_obj.fortune(args.book, "book")
         else:
             yant_obj.fortune(args.tag, "tag")
+
 
 if __name__ == "__main__":
     main(sys.argv)
