@@ -1,2 +1,4 @@
 #!/bin/bash
+
+export PYTHONPATH=$PYTHONPATH:/usr/local
 python3 /usr/local/yant/runner.py "$@"
