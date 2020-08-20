@@ -1,13 +1,15 @@
 import subprocess
 import termios
 import sys
-from colors import colors
-colored = colors.colored
+from yant.utils import colors
+colored = colors.Colors.colored
+
 
 def require_python_version(required):
     if sys.version_info.major < required:
         print("Please use Python {0} or higher.".format(required))
         sys.exit(1)
+
 
 def sys_cmd(cmd, bg=False):
     try:
@@ -17,9 +19,9 @@ def sys_cmd(cmd, bg=False):
     except OSError as e:
         print(cmd[0], "not installed?")
 
-''' seems broken
-'''
+
 def my_input(prompt):
+    # seems broken
     import tty
     fd = sys.stdin.fileno()
     old_settings = termios.tcgetattr(fd)
@@ -31,9 +33,16 @@ def my_input(prompt):
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
     return ch
 
-''' format a raw string that has *
-'''
+
 def fstr(raw_str):
+    """Format a raw string that has *
+
+    :param raw_str: input string for formatting
+    :type: string
+    :rtype: string
+    :return: formatted string
+    """
+
     # states: raw, esp (escape), hl (highlight)
     state = 'raw' 
     HC, RS = "\033[1m\033[32m", "\033[0m"
@@ -66,21 +75,21 @@ def fstr(raw_str):
 
     return fm_str # in case of unmatched *
 
-''' print list items in 48 line per page fashion,
-    ask user to continue once output reaches page limit
-    Note: this is kept to be compatible with old data
-'''
+
 def paged_print(lines, line_limit=48):
+    # print list items in 48 line per page fashion,
+    # ask user to continue once output reaches page limit
+    # Note: this is kept to be compatible with old data
     while lines:
         print('\n'.join(lines[:line_limit]))
         lines = lines[line_limit:]
         if lines and input("More? ") not in ['Y', 'y']:
             break
 
-''' update, append, or remove items in a list
-'''
+
 def update_list(lst, new_item_func, item_name="item"):
-    if lst == []:
+    # update, append, or remove items in a list
+    if not lst:
         print("Current content is empty.")
     else:
         print("Current content: ")

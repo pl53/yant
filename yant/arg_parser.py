@@ -1,5 +1,6 @@
 import argparse
 
+
 def parse(args):
     yant_desc = "YANT is a commanline notebook tool.\n" + \
                 "Each notebook is a collection of unordered flashcards.\n" + \

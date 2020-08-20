@@ -1,12 +1,10 @@
-class colors:
-    '''
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    '''
+class Colors:
+    # HEADER = '\033[95m'
+    # OKBLUE = '\033[94m'
+    # OKGREEN = '\033[92m'
+    # WARNING = '\033[93m'
+    # FAIL = '\033[91m'
+    # ENDC = '\033[0m'
     # ANSI color codes
     RS = "\033[0m"    # reset
     HC = "\033[1m"    # hicolor
@@ -33,21 +31,21 @@ class colors:
     def begin_fcolor(c):
         cl = c.lower()
         if cl == "black" or cl == "bk":
-            font_color = colors.FBLK
+            font_color = Colors.FBLK
         elif cl == "red" or cl == "r":
-            font_color = colors.FRED
+            font_color = Colors.FRED
         elif cl == "green" or cl == "g":
-            font_color = colors.FGRN
+            font_color = Colors.FGRN
         elif cl == "yellow" or cl == "y":
-            font_color = colors.FYEL
+            font_color = Colors.FYEL
         elif cl == "blue" or cl == "b":
-            font_color = colors.FBLE
+            font_color = Colors.FBLE
         elif cl == "magenta" or cl == "m":
-            font_color = colors.FMAG
+            font_color = Colors.FMAG
         elif cl == "cyan" or cl == "c":
-            font_color = colors.FCYN
+            font_color = Colors.FCYN
         elif cl == "white" or cl == "w":
-            font_color = colors.FWHT
+            font_color = Colors.FWHT
         else: # e.g. plan texts are wanted
             font_color = ''
         return font_color
@@ -56,34 +54,32 @@ class colors:
     def begin_bcolor(c):
         cl = c.lower()
         if cl == "black" or cl == "bk":
-            bg_color = colors.BBLK
+            bg_color = Colors.BBLK
         elif cl == "red" or cl == "r":
-            bg_color = colors.BRED
+            bg_color = Colors.BRED
         elif cl == "green" or cl == "g":
-            bg_color = colors.BGRN
+            bg_color = Colors.BGRN
         elif cl == "yellow" or cl == "y":
-            bg_color = colors.BYEL
+            bg_color = Colors.BYEL
         elif cl == "blue" or cl == "b":
-            bg_color = colors.BBLE
+            bg_color = Colors.BBLE
         elif cl == "magenta" or cl == "m":
-            bg_color = colors.BMAG
+            bg_color = Colors.BMAG
         elif cl == "cyan" or cl == "c":
-            bg_color = colors.BCYN
+            bg_color = Colors.BCYN
         elif cl == "white" or cl == "w":
-            bg_color = colors.BWHT
+            bg_color = Colors.BWHT
         else: # e.g. plan texts are wanted
             bg_color = ''
         return bg_color
 
     @staticmethod
     def stop_color():
-        return colors.RS
+        return Colors.RS
 
     @staticmethod
     def colored(s, fc, bc=''):
-        '''color s with font color (fc) and background color (bc)'''
-        return colors.begin_fcolor(fc) + \
-               colors.begin_bcolor(bc) + \
-               s + colors.stop_color()
-
-    
+        # color s with font color (fc) and background color (bc)
+        return Colors.begin_fcolor(fc) + \
+               Colors.begin_bcolor(bc) + \
+               s + Colors.stop_color()

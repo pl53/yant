@@ -2,11 +2,12 @@ import os
 import logging
 import pickle
 
-import yant_utils
-from book import Notebook
-#TODO: make this a singleton
+from yant.utils import yant_utils
+
+
 class TagManager:
-        
+    # TODO: make this a singleton
+
     def __init__(self):
         self.is_tag_loaded = False
         data_path = yant_utils.get_data_path()

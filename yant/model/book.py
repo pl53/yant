@@ -7,13 +7,12 @@ import subprocess
 import random
 import logging
 
-import yant_utils
-from flashcard import Flashcard
-from colors import colors
-colored = colors.colored
+from yant.utils import yant_utils
+from yant.model.flashcard import Flashcard
+from yant.utils import colors
+colored = colors.Colors.colored
 
-'''
-'''
+
 class Notebook:
     # configs used for import/export
     yant_config = yant_utils.get_config_parser()
@@ -27,14 +26,15 @@ class Notebook:
         self.name = name
         self.flashcard_class = flashcard_class
         self.data = {}
-        self.data_file = os.path.join(yant_utils.get_data_path(), name+".db")
+        self.data_file = os.path.join(yant_utils.get_data_path(), name + ".db")
         self.logger = logging.getLogger("Book")
         self.is_data_loaded = False
 
     def create(self, tags=[], description="Yant book"):
         data = {}
         current_time = time.ctime()
-        #data["version"] = current_data_version #TODO: add config value
+        # TODO: add config value
+        # data["version"] = current_data_version
         data["name"] = self.name
         data["tags"] = tags
         data["desc"] = description
@@ -50,9 +50,9 @@ class Notebook:
         self.logger.info("Delete book " + self.name + ".")
         subprocess.call(["rm", "-f", self.data_file])
 
-    #TODO: create a temp file to indicate that data is been loaded
     def load(self):
         # the program is single-threaded, so no lock needed here
+        # TODO: create a temp file to indicate that data is been loaded
         if self.is_data_loaded:
             return
 
@@ -60,7 +60,7 @@ class Notebook:
             self.data = pickle.load(fp)
 
         # for back compatibility, previous notebooks might not use flashcard index
-        #if 'version' not in self.data or self.data['version'] < current_data_version:
+        # if 'version' not in self.data or self.data['version'] < current_data_version:
         #    self.data['version'] = current_data_version
 
         self.is_data_loaded = True
@@ -122,7 +122,7 @@ class Notebook:
         self.save()
 
     def update_flashcard(self, key, feedback=True):
-        '''Set feedback to False for unittest'''
+        # Set feedback to False for unittest
         self.load()
         if key in self.data["entries"]:
             rv = self.data["entries"][key].update()
@@ -160,7 +160,7 @@ class Notebook:
 
     ''' tag related'''
     def add_tag(self, tag):    
-        #new_tag = tag.strip()
+        # new_tag = tag.strip()
         new_tag = tag
         self.load()
         if new_tag in self.data["tags"]:
